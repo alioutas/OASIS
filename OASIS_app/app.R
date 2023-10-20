@@ -367,7 +367,7 @@ ui <- fluidPage(
                                    # ),
                                    hr(),
                                    helpText("After any change press the button."),
-                                   actionButton("op_intersected", tippy("Upload", "<strong>This process might take up to 2 minutes. Before clicking make sure you have uploaded all necessary .bed files and you have properly selected the desired organism genome.</strong>"), 
+                                   actionButton("op_intersected", tippy("Upload", "<strong> Before clicking make sure you have uploaded all necessary .bed files and you have properly selected the desired organism genome.</strong>"), 
                                                 style="position:relative; left: 25%; right: 25%; color: #000; background-color: #F1C232; border-color: #000", 
                                                 icon("arrow-circle-up"))),
                                
@@ -698,12 +698,12 @@ ui <- fluidPage(
                    # })
                    
                    #Uni_MS
-                   hidden(div(id = "barcodes_UNI_ms",
+                   p(div(id = "barcodes_UNI_ms",
                               shinyjs::hidden(p(id = "barcode_error_uni_ms",
                                                 print(
                                                   code("Please, upload Universal Mainstreet bed file.")
                                                 ))),
-                              shinyjs::hidden(
+                             p(
                                 div(id = "barcodes_UNI_ms_options",
                                     fluidRow(column(
                                       12,
@@ -718,12 +718,12 @@ ui <- fluidPage(
                                     )))
                               ))),
                    #Uni_BS
-                   hidden(div(id = "barcodes_UNI_bs",
+                   p(div(id = "barcodes_UNI_bs",
                               shinyjs::hidden(p(id = "barcode_error_uni_bs",
                                                 print(
                                                   code("Please, upload Universal Backstreet bed file.")
                                                 ))),
-                              shinyjs::hidden(
+                              p(
                                 div(id = "barcodes_UNI_bs_options",
                                     fluidRow(
                                       column(
@@ -750,12 +750,12 @@ ui <- fluidPage(
                               ))),
                    
                    #MS1
-                   hidden(div(id = "barcodes_ms1",
+                   p(div(id = "barcodes_ms1",
                               shinyjs::hidden(p(id = "barcode_error_ms1",
                                                 print(
                                                   code("Please, upload Mainstreet 1 file.")
                                                 ))),
-                              shinyjs::hidden(
+                              p(
                                 div(id = "barcodes_ms1_options",
                                     fluidRow(column(
                                       12,
@@ -774,12 +774,12 @@ ui <- fluidPage(
                                     )))
                               ))),
                    #MS2
-                   hidden(div(id = "barcodes_ms2",
+                   p(div(id = "barcodes_ms2",
                               shinyjs::hidden(p(id = "barcode_error_ms2",
                                                 print(
                                                   code("Please, upload Mainstreet 2 file.")
                                                 ))),
-                              shinyjs::hidden(
+                              p(
                                 div(id = "barcodes_ms2_options",
                                     fluidRow(column(
                                       12,
@@ -799,12 +799,12 @@ ui <- fluidPage(
                               ))),
                    
                    #BS1
-                   hidden(div(id = "barcodes_bs1",
+                   p(div(id = "barcodes_bs1",
                               shinyjs::hidden(p(id = "barcode_error_bs1",
                                                 print(
                                                   code("Please, upload Backstreet 1 file.")
                                                 ))),
-                              shinyjs::hidden(
+                              p(
                                 div(id = "barcodes_bs1_options",
                                     fluidRow(
                                       column(
@@ -831,12 +831,12 @@ ui <- fluidPage(
                                     ))
                               ))),
                    #BS2
-                   hidden(div(id = "barcodes_bs2",
+                   p(div(id = "barcodes_bs2",
                               shinyjs::hidden(p(id = "barcode_error_bs2",
                                                 print(
                                                   code("Please, upload Backstreet 2 file.")
                                                 ))),
-                              shinyjs::hidden(
+                              p(
                                 div(id = "barcodes_bs2_options",
                                     fluidRow(
                                       column(
@@ -1079,7 +1079,7 @@ ui <- fluidPage(
                h5("OligoFISSEQ imaging is described here:"),
                tags$a(href="https://rdcu.be/c5yF9", "Nguyen H, Chattoraj S, Castillo D, et. al., Nature Methods (2020)."),
                br(),
-               h5(strong("Huy Nguyen, Jumana Alhaj Abed and Wu lab thank you for your feedback on OASIS design.")),
+               h5("Huy Nguyen, Jumana Alhaj Abed and Wu lab thank you for your feedback on OASIS design."),
                br(),
                img(src = "https://upload.wikimedia.org/wikipedia/en/thumb/0/07/Harvard_Medical_School_seal.svg/1280px-Harvard_Medical_School_seal.svg.png", align = "left", width = "200px", height = "50px") #,
                #   img(src = "HMDC_logo.png", align = "right", width = 320, height = 100)
@@ -1214,158 +1214,6 @@ server <- function(input, output, session) {
   # })
   
   
-  
-  
-  ######### Universal Barcodes outputs #########
-  
-  ########## UNIVERSAL MAINSTREET   ########## 
-  
-  ###### Use genomic coordinates ###### 
-  # makes uploading files for MS and BS visible when auto universals is not clicked
-  # observe({
-  #   toggle(id = "UNI_ms", condition = !input$auto_uni)
-  # })
-  # 
-  # observe({
-  #   toggle(id = "UNI_bs", condition = !input$auto_uni)
-  # })
-  
-  # Intersects *New* Universal Mainstreets to filtered Oligopaints
-  universals_ms <- print("")
-  universals_ms <-eventReactive(input$op_new,{
-    req(input$UNI_ms, input$op_new)
-    validate(
-      need(input$UNI_ms != "", " "),
-      need("input.streets.includes('uni_ms')", message = F)
-    )
-    
-    comb_ops() %>% 
-      select("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms", 
-             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")
-    
-    
-    
-    # df_ms <- tibble(fread(input$UNI_ms$datapath[1]) %>%
-    #                   select(1:4) %>%
-    #                   `colnames<-`(c("chr", "start", "end", "id")))
-    # filtered_oligopaints <- filtered_oligopaints()
-    # to_data_frame(RBedtools(tool = 'intersect',
-    #                         options = '-loj',
-    #                         a= from_data_frame(df_ms),
-    #                         b= from_data_frame(filtered_oligopaints))) %>%
-    #   `colnames<-`(c(str_c(colnames(df_ms), rep("_uni_ms", length(colnames(df_ms)))), colnames(filtered_oligopaints()))) %>%
-    #   filter(start > 0)
-    
-    
-  }, ignoreNULL = FALSE)
-  
-  
-  
-  
-  
-  
-  ## table
-  table_UNI_ms <- eventReactive(input$op_new,{
-    make_table(universals_ms())
-  })
-  output$table_UNI_ms <- DT::renderDataTable({
-    validate(
-      need(input$UNI_ms != "", message = FALSE),
-      need("input.UNI_ms.length > 0", message = FALSE)
-      
-      #"Seems like you have not uploaded any Mainstreet Universal .bed file yet, or you are opting for automatic universal sequence assignment."),
-    )
-    table_UNI_ms()
-  })
-  
-  ## summary
-  summary_UNI_ms <- eventReactive(input$op_new,{
-    make_summary(universals_ms())
-  })
-  output$summary_UNI_ms <- DT::renderDataTable({
-    validate(
-      need(input$UNI_ms != "", " "),
-      need("input.streets.includes('uni_ms')", message = F)
-    )
-    summary_UNI_ms()
-  })
-  
-  # number of files chosen
-  output$uni_n_ms <- renderText({
-    if(is.null(input$UNI_ms)) {
-      paste("Please, upload Mainstreet Universal sequence .bed file.")
-    } else{
-      paste("Universal Mainstreet .bed file is uploaded.")
-    }
-  })
-  
-  
-  
-  ###### Use intersected oligopaints ###### 
-  # makes uploading files for MS and BS visible when auto universals is not clicked
-  # observe({
-  #   toggle(id = "intersected_UNI_ms", condition = !input$intersected_auto_uni)
-  # })
-  # 
-  # observe({
-  #   toggle(id = "intersected_UNI_bs", condition = !input$intersected_auto_uni)
-  # })
-  
-  # This is a reactive element that triggers a change when oligopaints source is changed or op_intersected upload button is pressed
-  listen_source_intersected <- reactive({
-    paste(input$op_intersected , input$op_select)
-  })
-  
-  # Creates statistics from elsewhere intersected Universal Mainstreets
-  
-  intersected_universals_ms <- print("")
-  intersected_universals_ms <-eventReactive(listen_source_intersected(),{
-    req(input$intersected_UNI_ms, input$op_intersected)
-    validate(
-      need(input$intersected_UNI_ms != "", " "),
-      need("input.intersected_streets.includes('intersected_uni_ms')", message = F)
-    )
-    if(req(input$op_select) == "intersected"){
-      fread(input$intersected_UNI_ms$datapath[1]) %>% 
-        `colnames<-`(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms", "chr", "start", "end", "sequence", "Tm")) #, "probe_strand"
-    } else if(input$op_select != "intersected"){
-      NULL
-    }
-  }, ignoreNULL = FALSE)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # observeEvent(input$UNI_ms, {
-  #   df_ms <- tibble(fread(input$UNI_ms$datapath[1]) %>%
-  #                     select(1:4))
-  #   
-  #   if(!bedtools_merge_test(df_ms)){
-  #     showNotification("Attention! Universal Main Street coordinates have overlaps. Correct them and upload the correct coordinates.", 
-  #                      type = "error",
-  #                      duration = NULL)
-  #   }
-  #   
-  # })
-  
-  
-  
   # Show a notification when there are overlapping coordinates. The user needs to select whether they want the coordinates corrected or not...
   observeEvent(c(input$UNI_ms,
                  input$intersected_UNI_ms,
@@ -1384,22 +1232,23 @@ server <- function(input, output, session) {
     #                   select(1:4))
     
     
-    list_merged <- NULL
-    bed_list <- list(uni_ms = if(!is.null(input$UNI_ms)) tibble(fread(input$UNI_ms$datapath[1]) %>% select(1:3)),
-                     uni_i_ms = if(!is.null(input$intersected_UNI_ms)) tibble(fread(input$intersected_UNI_ms$datapath[1]) %>% select(5:7)),
-                     uni_bs = if(!is.null(input$UNI_bs)) tibble(fread(input$UNI_bs$datapath[1]) %>% select(1:3)),
-                     uni_i_bs = if(!is.null(input$intersected_UNI_bs)) tibble(fread(input$intersected_UNI_bs$datapath[1]) %>% select(5:7)),
-                     ms1 = if(!is.null(input$MS1)) tibble(fread(input$MS1$datapath[1]) %>% select(1:3)),
-                     ms_i1 = if(!is.null(input$intersected_MS1)) tibble(fread(input$intersected_MS1$datapath[1]) %>% select(5:7)),
-                     ms2 = if(!is.null(input$MS2)) tibble(fread(input$MS2$datapath[1]) %>% select(1:3)),
-                     ms_i2 = if(!is.null(input$intersected_MS2)) tibble(fread(input$intersected_MS2$datapath[1]) %>% select(5:7)),
-                     bs1 = if(!is.null(input$BS1)) tibble(fread(input$BS1$datapath[1]) %>% select(1:3)),
-                     bs_i1 = if(!is.null(input$intersected_BS1)) tibble(fread(input$intersected_BS1$datapath[1]) %>% select(5:7)),
-                     bs2 = if(!is.null(input$BS2)) tibble(fread(input$BS2$datapath[1]) %>% select(1:3)),
-                     bs_i2 = if(!is.null(input$intersected_BS2)) tibble(fread(input$intersected_BS2$datapath[1]) %>% select(5:7))
+    bed_list <- NULL
+    bed_list <- list(uni_ms = if(!is.null(input$UNI_ms)) tibble(fread(input$UNI_ms$datapath[1]) %>% select(1:3)) else NULL,
+                     uni_i_ms = if(!is.null(input$intersected_UNI_ms)) tibble(fread(input$intersected_UNI_ms$datapath[1]) %>% select(5:7)) else NULL,
+                     uni_bs = if(!is.null(input$UNI_bs)) tibble(fread(input$UNI_bs$datapath[1]) %>% select(1:3)) else NULL,
+                     uni_i_bs = if(!is.null(input$intersected_UNI_bs)) tibble(fread(input$intersected_UNI_bs$datapath[1]) %>% select(5:7)) else NULL,
+                     ms1 = if(!is.null(input$MS1)) tibble(fread(input$MS1$datapath[1]) %>% select(1:3)) else NULL,
+                     ms_i1 = if(!is.null(input$intersected_MS1)) tibble(fread(input$intersected_MS1$datapath[1]) %>% select(5:7)) else NULL,
+                     ms2 = if(!is.null(input$MS2)) tibble(fread(input$MS2$datapath[1]) %>% select(1:3)) else NULL,
+                     ms_i2 = if(!is.null(input$intersected_MS2)) tibble(fread(input$intersected_MS2$datapath[1]) %>% select(5:7)) else NULL,
+                     bs1 = if(!is.null(input$BS1)) tibble(fread(input$BS1$datapath[1]) %>% select(1:3)) else NULL,
+                     bs_i1 = if(!is.null(input$intersected_BS1)) tibble(fread(input$intersected_BS1$datapath[1]) %>% select(5:7)) else NULL,
+                     bs2 = if(!is.null(input$BS2)) tibble(fread(input$BS2$datapath[1]) %>% select(1:3)) else NULL,
+                     bs_i2 = if(!is.null(input$intersected_BS2)) tibble(fread(input$intersected_BS2$datapath[1]) %>% select(5:7)) else NULL
     ) %>%
-      compact() # removes NULL elements in the list
+      compact() # removes NULL elements in the list 
     
+    list_merged <- NULL
     list_merged <- map_lgl(bed_list, bedtools_merge_test)
     #names(list_merged[list_merged == F])
     
@@ -1410,13 +1259,15 @@ server <- function(input, output, session) {
         easyClose = F,
         footer = tagList(
           radioButtons("correct_overlap","How to proceed with overlapping coordinates?", 
-                       c("Remove them" = "yes", "Do not remove them" = "no"), 
-                       selected = "yes",
+                       c("Remove them" = TRUE, "Do not remove them" = FALSE), 
+                       selected = TRUE,
                        inline = T),
           modalButton("Submit")
           #actionButton("ok", "OK")
         )
       ))
+      
+     
       
       # showNotification("Attention! Universal Main Street coordinates have overlaps. Correct them and upload the correct coordinates.",
       #                  type = "error",
@@ -1425,8 +1276,66 @@ server <- function(input, output, session) {
     
   })
   
+  # Check whether the user has not uploaded all the necessary bed files. If so, show a notification.
+  observeEvent(c(input$new_op, input$append), {
+    
+    # crosscheck the streets and intersected_streets selected and the bed files uploaded 
+    # if the user has selected a street without uploading a file, then the file is NULL
+    # if there is any null then showModal notification to correct for this discrepancy
+    
+    # create a list with the uploaded bed files
+    bed_list <- NULL
+    bed_list <- list(uni_ms = if(!is.null(input$UNI_ms) && "uni_ms" %in% input$streets) 1 else 0,
+                     uni_bs = if(!is.null(input$UNI_bs) && "uni_bs" %in% input$streets) 1 else 0,
+                     ms1 = if(!is.null(input$MS1) && "ms1" %in% input$streets) 1 else 0,
+                     ms2 = if(!is.null(input$MS2) && "ms2" %in% input$streets)  1 else 0,
+                     bs1 = if(!is.null(input$BS1) && "bs1" %in% input$streets)  1 else 0,
+                     bs2 = if(!is.null(input$BS2) && "bs2" %in% input$streets)  1 else 0
+    ) %>% unlist()
+    
+    if(length(input$streets) != sum(bed_list)){
+      showModal(modalDialog(
+        title = "Missing files!",
+        "You have not uploaded all the necessary bed files for the selected streets.",
+        easyClose = F
+        )
+      )
+    } 
+
+  })
   
-  ######################## BEDFILES INTERSECT with OPs  ######################## 
+  # Check whether the user has not uploaded all the necessary bed files. If so, show a notification.
+  observeEvent(c(input$op_intersected, input$append), {
+    
+    # crosscheck the streets and intersected_streets selected and the bed files uploaded 
+    # if the user has selected a street without uploading a file, then the file is NULL
+    # if there is any null then showModal notification to correct for this discrepancy
+    
+    # create a list with the uploaded bed files
+    bed_list <- list(uni_i_ms = if(!is.null(input$intersected_UNI_ms) && "intersected_uni_ms" %in% input$intersected_streets) 1 else 0,
+                     uni_i_bs = if(!is.null(input$intersected_UNI_bs) && "intersected_uni_bs" %in% input$intersected_streets) 1 else 0,
+                     ms_i1 = if(!is.null(input$intersected_MS1) && "intersected_ms1" %in% input$intersected_streets) 1 else 0,
+                     ms_i2 = if(!is.null(input$intersected_MS2) && "intersected_ms2" %in% input$intersected_streets) 1 else 0,
+                     bs_i1 = if(!is.null(input$intersected_BS1) && "intersected_bs1" %in% input$intersected_streets) 1 else 0,
+                     bs_i2 = if(!is.null(input$intersected_BS2) && "intersected_bs2" %in% input$intersected_streets)  1 else 0
+    ) %>% unlist()
+    
+    if(length(input$intersected_streets) != sum(bed_list)){
+      showModal(modalDialog(
+        title = "Missing files!",
+        "You have not uploaded all the necessary bed files for the selected streets.",
+        easyClose = F
+      )
+      )
+    }
+    
+  })
+
+  
+  
+  
+  
+  ######################## BEDFILES to OPs  ######################## 
   
   
   # create a common dataframe that holds either the already intersected or the newly intersected OPs
@@ -1639,6 +1548,166 @@ server <- function(input, output, session) {
     bindEvent(input$op_intersected,
               input$op_new)
   
+  
+  ######### Universal Barcodes outputs #########
+  
+  ########## UNIVERSAL MAINSTREET   ########## 
+  
+  ###### Use genomic coordinates ###### 
+  # makes uploading files for MS and BS visible when auto universals is not clicked
+  # observe({
+  #   toggle(id = "UNI_ms", condition = !input$auto_uni)
+  # })
+  # 
+  # observe({
+  #   toggle(id = "UNI_bs", condition = !input$auto_uni)
+  # })
+  
+  # Intersects *New* Universal Mainstreets to filtered Oligopaints
+  universals_ms <- print("")
+  universals_ms <-eventReactive(input$op_new,{
+    req(input$UNI_ms, input$op_new)
+    validate(
+      need(input$UNI_ms != "", " "),
+      need("input.streets.includes('uni_ms')", message = F)
+    )
+    
+    comb_ops() %>% 
+      select(any_of(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+    
+    
+    
+    # df_ms <- tibble(fread(input$UNI_ms$datapath[1]) %>%
+    #                   select(1:4) %>%
+    #                   `colnames<-`(c("chr", "start", "end", "id")))
+    # filtered_oligopaints <- filtered_oligopaints()
+    # to_data_frame(RBedtools(tool = 'intersect',
+    #                         options = '-loj',
+    #                         a= from_data_frame(df_ms),
+    #                         b= from_data_frame(filtered_oligopaints))) %>%
+    #   `colnames<-`(c(str_c(colnames(df_ms), rep("_uni_ms", length(colnames(df_ms)))), colnames(filtered_oligopaints()))) %>%
+    #   filter(start > 0)
+    
+    
+  }, ignoreNULL = FALSE)
+  
+  
+  
+  
+  
+  
+  ## table
+  table_UNI_ms <- eventReactive(input$op_new,{
+    make_table(universals_ms())
+  })
+  output$table_UNI_ms <- DT::renderDataTable({
+    validate(
+      need(input$UNI_ms != "", message = FALSE),
+      need("input.UNI_ms.length > 0", message = FALSE)
+      
+      #"Seems like you have not uploaded any Mainstreet Universal .bed file yet, or you are opting for automatic universal sequence assignment."),
+    )
+    table_UNI_ms()
+  })
+  
+  ## summary
+  summary_UNI_ms <- eventReactive(input$op_new,{
+    make_summary(universals_ms())
+  })
+  output$summary_UNI_ms <- DT::renderDataTable({
+    validate(
+      need(input$UNI_ms != "", " "),
+      need("input.streets.includes('uni_ms')", message = F)
+    )
+    summary_UNI_ms()
+  })
+  
+  # number of files chosen
+  output$uni_n_ms <- renderText({
+    if(is.null(input$UNI_ms)) {
+      paste("Please, upload Mainstreet Universal sequence .bed file.")
+    } else{
+      paste("Universal Mainstreet .bed file is uploaded.")
+    }
+  })
+  
+  
+  
+  ###### Use intersected oligopaints ###### 
+  # makes uploading files for MS and BS visible when auto universals is not clicked
+  # observe({
+  #   toggle(id = "intersected_UNI_ms", condition = !input$intersected_auto_uni)
+  # })
+  # 
+  # observe({
+  #   toggle(id = "intersected_UNI_bs", condition = !input$intersected_auto_uni)
+  # })
+  
+  # This is a reactive element that triggers a change when oligopaints source is changed or op_intersected upload button is pressed
+  listen_source_intersected <- reactive({
+    paste(input$op_intersected , input$op_select)
+  })
+  
+  # Creates statistics from elsewhere intersected Universal Mainstreets
+  
+  intersected_universals_ms <- print("")
+  intersected_universals_ms <-eventReactive(listen_source_intersected(),{
+    req(input$intersected_UNI_ms, input$op_intersected)
+    validate(
+      need(input$intersected_UNI_ms != "", " "),
+      need("input.intersected_streets.includes('intersected_uni_ms')", message = F)
+    )
+    if(req(input$op_select) == "intersected"){
+      
+      
+      comb_ops() %>% 
+        select(any_of(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms", 
+               "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+      
+      # fread(input$intersected_UNI_ms$datapath[1]) %>% 
+      #   select(1:9) %>%
+      #   `colnames<-`(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms", "chr", "start", "end", "sequence", "Tm")) #, "probe_strand"
+    } else if(input$op_select != "intersected"){
+      NULL
+    }
+  }, ignoreNULL = FALSE)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # observeEvent(input$UNI_ms, {
+  #   df_ms <- tibble(fread(input$UNI_ms$datapath[1]) %>%
+  #                     select(1:4))
+  #   
+  #   if(!bedtools_merge_test(df_ms)){
+  #     showNotification("Attention! Universal Main Street coordinates have overlaps. Correct them and upload the correct coordinates.", 
+  #                      type = "error",
+  #                      duration = NULL)
+  #   }
+  #   
+  # })
+  
+  
+ 
+ 
+  
   # TO DELETE  START
   # this was within bindEvent and it can now be removed if the element is reactive with input$upload
   
@@ -1656,22 +1725,6 @@ server <- function(input, output, session) {
   # input$BS2,
   # input$intersected_BS2
   # TO DELETE END
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -1733,8 +1786,8 @@ server <- function(input, output, session) {
     
     
     comb_ops() %>% 
-      select("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs", 
-             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")
+      select(any_of(c("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
     
     
     
@@ -1813,8 +1866,13 @@ server <- function(input, output, session) {
       need(input$intersected_UNI_bs != "", " "),
       need("input.intersected_streets.includes('intersected_uni_bs')", message = F)
     )
-    fread(input$intersected_UNI_bs$datapath[1]) %>% 
-      `colnames<-`(c("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs", "chr", "start", "end", "sequence", "Tm")) #, "probe_strand"
+    
+    comb_ops() %>% 
+      select(any_of(c("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+    # fread(input$intersected_UNI_bs$datapath[1]) %>% 
+    #   select(1:9) %>%
+    #   `colnames<-`(c("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs", "chr", "start", "end", "sequence", "Tm")) #, "probe_strand"
     
   }, ignoreNULL = FALSE)
   
@@ -1871,8 +1929,8 @@ server <- function(input, output, session) {
     
     
     comb_ops() %>% 
-      select("chr_ms1","start_ms1", "end_ms1", "id_ms1", 
-             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")
+      select(any_of(c("chr_ms1","start_ms1", "end_ms1", "id_ms1", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
     
     # DELETE START
     # df_ms1 <- tibble(fread(input$MS1$datapath[1]) %>%
@@ -1900,8 +1958,8 @@ server <- function(input, output, session) {
     )
     
     comb_ops() %>% 
-      select("chr_ms2","start_ms2", "end_ms2", "id_ms2", 
-             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")
+      select(any_of(c("chr_ms2","start_ms2", "end_ms2", "id_ms2", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
     
     # DELETE START
     # df_ms2 <- tibble(fread(input$MS2$datapath[1]) %>%
@@ -2014,10 +2072,14 @@ server <- function(input, output, session) {
       need(input$intersected_MS1 != "", " "),
       need("input.intersected_streets.includes('intersected_ms1')", message = F)
     )
-    fread(input$intersected_MS1$datapath[1]) %>% 
-      `colnames<-`(c("chr_ms1","start_ms1", "end_ms1", "id_ms1", "chr", "start", "end", "sequence", "Tm")) %>%
-      filter(start > 0) %>%
-      mutate(chr_ms1=as.character(chr_ms1), start_ms1=as.numeric(start_ms1), end_ms1= as.numeric(end_ms1), id_ms1=as.character(id_ms1), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
+    comb_ops() %>% 
+      select(any_of(c("chr_ms1","start_ms1", "end_ms1", "id_ms1", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+    
+    # fread(input$intersected_MS1$datapath[1]) %>% 
+    #   `colnames<-`(c("chr_ms1","start_ms1", "end_ms1", "id_ms1", "chr", "start", "end", "sequence", "Tm")) %>%
+    #   filter(start > 0) %>%
+    #   mutate(chr_ms1=as.character(chr_ms1), start_ms1=as.numeric(start_ms1), end_ms1= as.numeric(end_ms1), id_ms1=as.character(id_ms1), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
   }, ignoreNULL = FALSE)
   
   intersected_main_street_2 <-eventReactive(input$op_intersected,{
@@ -2025,10 +2087,13 @@ server <- function(input, output, session) {
       need(input$intersected_MS2 != "", " "),
       need("input.intersected_streets.includes('intersected_ms2')", message = F)
     )
-    fread(input$intersected_MS2$datapath[1]) %>% 
-      `colnames<-`(c("chr_ms2","start_ms2", "end_ms2", "id_ms2", "chr", "start", "end", "sequence", "Tm")) %>% 
-      filter(start > 0) %>%
-      mutate(chr_ms2=as.character(chr_ms2), start_ms2=as.numeric(start_ms2), end_ms2= as.numeric(end_ms2), id_ms2=as.character(id_ms2), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
+    comb_ops() %>% 
+      select(any_of(c("chr_ms2","start_ms2", "end_ms2", "id_ms2", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+    # fread(input$intersected_MS2$datapath[1]) %>% 
+    #   `colnames<-`(c("chr_ms2","start_ms2", "end_ms2", "id_ms2", "chr", "start", "end", "sequence", "Tm")) %>% 
+    #   filter(start > 0) %>%
+    #   mutate(chr_ms2=as.character(chr_ms2), start_ms2=as.numeric(start_ms2), end_ms2= as.numeric(end_ms2), id_ms2=as.character(id_ms2), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
   }, ignoreNULL = FALSE)
   
   intersected_main_streets <-eventReactive(input$op_intersected,{
@@ -2147,8 +2212,8 @@ server <- function(input, output, session) {
     
     
     comb_ops() %>% 
-      select("chr_bs1","start_bs1", "end_bs1", "id_bs1", 
-             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")
+      select(any_of(c("chr_bs1","start_bs1", "end_bs1", "id_bs1", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
     
     # DELETE START
     # df_bs1 <- tibble(fread(input$BS1$datapath[1]) %>%
@@ -2176,8 +2241,8 @@ server <- function(input, output, session) {
     )
     
     comb_ops() %>% 
-      select("chr_bs2","start_bs2", "end_bs2", "id_bs2", 
-             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")
+      select(any_of(c("chr_bs2","start_bs2", "end_bs2", "id_bs2", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
     
     # df_bs2 <- tibble(fread(input$BS2$datapath[1]) %>%
     #                    select(1:4) %>%
@@ -2329,10 +2394,13 @@ server <- function(input, output, session) {
       need(input$intersected_BS1 != "", " "),
       need("input.intersected_streets.includes('intersected_bs1')", message = F)
     )
-    fread(input$intersected_BS1$datapath[1]) %>% 
-      `colnames<-`(c("chr_bs1","start_bs1", "end_bs1", "id_bs1", "chr", "start", "end", "sequence", "Tm")) %>%  #, "probe_strand"     
-      filter(start > 0) %>%
-      mutate(chr_bs1=as.character(chr_bs1), start_bs1=as.numeric(start_bs1), end_bs1= as.numeric(end_bs1), id_bs1=as.character(id_bs1), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
+    comb_ops() %>% 
+      select(any_of(c("chr_bs1","start_bs1", "end_bs1", "id_bs1", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+    # fread(input$intersected_BS1$datapath[1]) %>% 
+    #   `colnames<-`(c("chr_bs1","start_bs1", "end_bs1", "id_bs1", "chr", "start", "end", "sequence", "Tm")) %>%  #, "probe_strand"     
+    #   filter(start > 0) %>%
+    #   mutate(chr_bs1=as.character(chr_bs1), start_bs1=as.numeric(start_bs1), end_bs1= as.numeric(end_bs1), id_bs1=as.character(id_bs1), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
   }, ignoreNULL = FALSE)
   
   
@@ -2342,10 +2410,14 @@ server <- function(input, output, session) {
       need(input$intersected_BS2 != "", " "),
       need("input.intersected_streets.includes('intersected_bs2')", message = F)
     )
-    fread(input$intersected_BS2$datapath[1]) %>% 
-      `colnames<-`(c("chr_bs2","start_bs2", "end_bs2", "id_bs2", "chr", "start", "end", "sequence", "Tm"))  %>%  #, "probe_strand"     
-      filter(start > 0) %>%
-      mutate(chr_bs2=as.character(chr_bs2), start_bs2=as.numeric(start_bs2), end_bs2= as.numeric(end_bs2), id_bs2=as.character(id_bs2), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
+    
+    comb_ops() %>% 
+      select(any_of(c("chr_bs2","start_bs2", "end_bs2", "id_bs2", 
+             "chr", "start", "end", "sequence", "Tm","on_target","off_target", "is_repeat", "max_kmer","probe_strand")))
+    # fread(input$intersected_BS2$datapath[1]) %>% 
+    #   `colnames<-`(c("chr_bs2","start_bs2", "end_bs2", "id_bs2", "chr", "start", "end", "sequence", "Tm"))  %>%  #, "probe_strand"     
+    #   filter(start > 0) %>%
+    #   mutate(chr_bs2=as.character(chr_bs2), start_bs2=as.numeric(start_bs2), end_bs2= as.numeric(end_bs2), id_bs2=as.character(id_bs2), chr=as.character(chr), start=as.numeric(start), end=  as.numeric(end), sequence=as.character(sequence), Tm=as.numeric(Tm))
   }, ignoreNULL = FALSE)
   
   intersected_back_streets <-eventReactive(input$op_intersected,{
@@ -2489,6 +2561,7 @@ server <- function(input, output, session) {
       }
     })
   })
+  
   
   main_streets_ready <- reactive({
     
@@ -2776,14 +2849,24 @@ server <- function(input, output, session) {
   # shows the options to the user after they have uploaded a bed file to what type of barcoding they can use for this street
   observe({
     toggle(id = "barcodes_UNI_ms", condition = {
-      "intersected_uni_ms" %in% input$intersected_streets | "uni_ms" %in% input$streets})
+       "intersected_uni_ms" %in% input$intersected_streets | "uni_ms" %in% input$streets})
     
-    if(is.null(universals_ms_ready())){
-      show("barcode_error_uni_ms")
-    } else if(!is.null(universals_ms_ready()))  {
-      hide("barcode_error_uni_ms")
-      show("barcodes_UNI_ms_options")
-    }
+    observe({
+      toggle(id = "barcodes_UNI_ms_options", condition = {
+        !is.null(universals_ms_ready())})
+    })
+    
+    observe({
+      toggle(id = "barcode_error_uni_ms", condition = {
+        is.null(universals_ms_ready())})
+    })
+    
+    # if(is.null(universals_ms_ready())){ 
+    #   show("barcode_error_uni_ms")
+    # } else if(!is.null(universals_ms_ready()))  {
+    #   hide("barcode_error_uni_ms")
+    #   show("barcodes_UNI_ms_options")
+    # }
   })  
   
   #Uni_BS
@@ -2792,12 +2875,22 @@ server <- function(input, output, session) {
     toggle(id = "barcodes_UNI_bs", condition = {
       "intersected_uni_bs" %in% input$intersected_streets | "uni_bs" %in% input$streets})
     
-    if(is.null(universals_bs_ready())){
-      show("barcode_error_uni_bs")
-    } else if(!is.null(universals_bs_ready()))  {
-      hide("barcode_error_uni_bs")
-      show("barcodes_UNI_bs_options")
-    }
+    observe({
+      toggle(id = "barcodes_UNI_bs_options", condition = {
+        !is.null(universals_bs_ready())})
+    })
+    
+    observe({
+      toggle(id = "barcode_error_uni_bs", condition = {
+        is.null(universals_bs_ready())})
+    })
+    
+    # if(is.null(universals_bs_ready())){
+    #   show("barcode_error_uni_bs")
+    # } else if(!is.null(universals_bs_ready()))  {
+    #   hide("barcode_error_uni_bs")
+    #   show("barcodes_UNI_bs_options")
+    # }
   })  
   
   
@@ -2808,15 +2901,29 @@ server <- function(input, output, session) {
     toggle(id = "barcodes_ms1", condition = {
       "intersected_ms1" %in% input$intersected_streets | "ms1" %in% input$streets})
     
-    if(is.null(main_streets_ready())){
-      show("barcode_error_ms1")
-    } else if(length(main_streets_ready() %>% select(contains(c("ms1"))) %>% names()) >= 1)  {
-      hide("barcode_error_ms1")
-      show("barcodes_ms1_options")
-    } else {
-      show("barcode_error_ms1")
-    }
+    observe({
+      toggle(id = "barcode_error_ms1", condition =
+               {is.null(main_streets_ready()) }) 
+    })
+    
+    observe({
+      toggle(id = "barcodes_ms1_options", condition =
+               {!is.null(main_streets_ready()) && length(main_streets_ready() %>% select(contains(c("ms1"))) %>% names()) >= 1})
+    })
+    
+
+    
+    # if(is.null(main_streets_ready())){
+    #   show("barcode_error_ms1")
+    #   hide("barcodes_ms1_options")
+    # } else if(!is.null(main_streets_ready()) && length(main_streets_ready() %>% select(contains(c("ms1"))) %>% names()) > 1)  {
+    #   hide("barcode_error_ms1")
+    #   show("barcodes_ms1_options")
+    # } else {
+    #   show("barcode_error_ms1")
+    # }
   })  
+
   
   # MS2 append choices
   # shows the options to the user after they have uploaded a bed file to what type of barcoding they can use for this street
@@ -2825,14 +2932,24 @@ server <- function(input, output, session) {
     toggle(id = "barcodes_ms2", condition = {
       "intersected_ms2" %in% input$intersected_streets | "ms2" %in% input$streets})
     
-    if(is.null(main_streets_ready())){
-      show("barcode_error_ms2")
-    } else if(length(main_streets_ready() %>% select(contains(c("ms2"))) %>% names()) >= 1)  {
-      hide("barcode_error_ms2")
-      show("barcodes_ms2_options")
-    } else {
-      show("barcode_error_ms2")
-    }
+    observe({
+      toggle(id = "barcode_error_ms2", condition =
+               {is.null(main_streets_ready()) })
+    })
+    
+    observe({
+      toggle(id = "barcodes_ms2_options", condition =
+               {!is.null(main_streets_ready()) && length(main_streets_ready() %>% select(contains(c("ms2"))) %>% names()) >= 1})
+    })
+    
+    # if(is.null(main_streets_ready())){
+    #   show("barcode_error_ms2")
+    # } else if(length(main_streets_ready() %>% select(contains(c("ms2"))) %>% names()) >= 1)  {
+    #   hide("barcode_error_ms2")
+    #   show("barcodes_ms2_options")
+    # } else {
+    #   show("barcode_error_ms2")
+    # }
   })  
   
   
@@ -2843,15 +2960,25 @@ server <- function(input, output, session) {
     toggle(id = "barcodes_bs1", condition = {
       "intersected_bs1" %in% input$intersected_streets | "bs1" %in% input$streets})
     
-    if(is.null(back_streets_ready())){
-      show("barcode_error_bs1")
-    } else if(!is.null(back_streets_ready()) && (sum(str_detect(names(back_streets_ready()), "bs1")) >= 1) && (!input$intersected_same_BS1 | !input$same_BS1))  {
-      hide("barcode_error_bs1")
-      show("barcodes_bs1_options")
-    } else if(input$intersected_same_BS1 | input$same_BS1)  {
-      hide("barcode_error_bs1")
-      hide("barcodes_bs1_options")
-    } 
+    observe({
+      toggle(id = "barcode_error_bs1", condition =
+               {is.null(back_streets_ready()) })
+    })
+    
+    observe({
+      toggle(id = "barcodes_bs1_options", condition =
+               {!is.null(back_streets_ready()) && length(back_streets_ready() %>% select(contains(c("bs1"))) %>% names()) >= 1})
+    })
+    
+    # if(is.null(back_streets_ready())){
+    #   show("barcode_error_bs1")
+    # } else if(!is.null(back_streets_ready()) && (sum(str_detect(names(back_streets_ready()), "bs1")) >= 1) && (!input$intersected_same_BS1 | !input$same_BS1))  {
+    #   hide("barcode_error_bs1")
+    #   show("barcodes_bs1_options")
+    # } else if(input$intersected_same_BS1 | input$same_BS1)  {
+    #   hide("barcode_error_bs1")
+    #   hide("barcodes_bs1_options")
+    # } 
   })  
   
   # BS2 append choices
@@ -2861,15 +2988,25 @@ server <- function(input, output, session) {
     toggle(id = "barcodes_bs2", condition = {
       "intersected_bs2" %in% input$intersected_streets | "bs2" %in% input$streets})
     
-    if(is.null(back_streets_ready())){
-      show("barcode_error_bs2")
-    } else if(!is.null(back_streets_ready()) && (sum(str_detect(names(back_streets_ready()), "bs2")) >= 1) && (!input$intersected_same_BS2 | !input$same_BS2))  {
-      hide("barcode_error_bs2")
-      show("barcodes_bs2_options")
-    } else if(input$intersected_same_BS2 | input$same_BS2)  {
-      hide("barcode_error_bs2")
-      hide("barcodes_bs2_options")
-    } 
+    observe({
+      toggle(id = "barcode_error_bs2", condition =
+               {is.null(back_streets_ready()) })
+    })
+    
+    observe({
+      toggle(id = "barcodes_bs2_options", condition =
+               {!is.null(back_streets_ready()) && length(back_streets_ready() %>% select(contains(c("bs2"))) %>% names()) >= 1})
+    })
+    
+    # if(is.null(back_streets_ready())){
+    #   show("barcode_error_bs2")
+    # } else if(!is.null(back_streets_ready()) && (sum(str_detect(names(back_streets_ready()), "bs2")) >= 1) && (!input$intersected_same_BS2 | !input$same_BS2))  {
+    #   hide("barcode_error_bs2")
+    #   show("barcodes_bs2_options")
+    # } else if(input$intersected_same_BS2 | input$same_BS2)  {
+    #   hide("barcode_error_bs2")
+    #   hide("barcodes_bs2_options")
+    # } 
   })  
   
   
@@ -3289,7 +3426,7 @@ server <- function(input, output, session) {
   
   output$OASISReport <- renderUI({ 
     validate(
-      need(input$append != 0, "No Oligopaints appended yet... go back to 'Upload' or 'Barcodes' tabs.")
+      need(input$append != 0, "No Oligopaints appended yet... go back to 'Upload' / 'Barcodes' tabs.")
     )
     includeMarkdown(knitr::knit('OASIS_report.Rmd'))           
   })
