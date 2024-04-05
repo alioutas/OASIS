@@ -1,18 +1,194 @@
+choices_append <- list(
+  "Sequential OligoSTORM" = "toe_seq_im",
+  "OligoSTORM" = "seq_im",
+  "OligoFISSEQ" = "ofq"#,
+  #"lambdaFISH" = "lambdaFISH"
+)
+# default lambda sequences
+default_lambda <- data.frame(
+  bitName = c("lambda1", 
+              #"lambda2", 
+              "lambda3", 
+              #"lambda4", 
+              "lambda5", 
+              "lambda6"),
+  key = c("1", "2", "3", "4"),
+  Sequence = c("CACCGACGTCGCATAGAACGGAAGAGCGTGTG",
+               #"AGAACGATCCAGCGAGATCAAGTGGAGCTGCG",
+               "CGAGCCAGGTCATCCTAGCCCATACGGCAATG",
+               #"GCATTCACCCTTGCACGATACCGAGCCACACC",
+               "AGCGCAGGAGGTCCACGACGTGCAAGGGTGT",
+               "CACACGCTCTCCGTCTTGGCCGTGGTCGATCA")
+)
+
+# default ofq sequences
+default_ofq <- data.frame(
+  bitName = c("OFQ1", 
+              "OFQ2",
+              "OFQ3",
+              "OFQ4"),
+  Sequence = c("GGTCT", 
+               "TGGTC", 
+               "AGTCA", 
+               "CGCTC"))
+
+
+# default secondary sequences
+default_sec <- data.frame(
+  bitName = c("sec1", "sec2", "sec3", "sec4", "sec5", "sec6"),
+  Sequence = c("CACCGACGTCGCATAGAACGGAAGAGCGTGTG",
+               "CGCAGCTCCACTTGATCTCGCTGGATCGTTCT",
+               "CGAGCCAGGTCATCCTAGCCCATACGGCAATG",
+               "GGTGTGGCTCGGTATCGTGCAAGGGTGAATGC",
+               "TAGCGCAGGAGGTCCACGACGTGCAAGGGTGT",
+               "CACACGCTCTCCGTCTTGGCCGTGGTCGATCA"))
+
+# default activator secondary sequences
+default_actsec <- data.frame(
+  bitName = c("sec405"),
+  Sequence = c("GGTCTTACAGCGGCGCAATG"))
+
+
+# oligopaints table
+default_oligopaints <- data.frame(
+  Name = c("hg38 newBalance", 
+           "hg19 newBalance", 
+           "chm13 newBalance", 
+           "mm39 newBalance",
+           "mm10 newBalance",
+           "mm9 newBalance",
+           "dm6 newBalance",
+           "ce11 newBalance",
+           "danRer11 newBalance",
+           "TAIR10 newBalance",
+           "sacCer3 newBalance",
+           "rn6 newBalance",
+           "galGal5 newBalance",
+           "galGal6 newBalance",
+           "rheMac10 newBalance",
+           "xenTro10 newBalance",
+           "Nfu_20140520 newBalance",
+           "AaegL5.0 newBalance",
+           "susScr11 newBalance",
+           "ASM694v2 newBalance",
+           "sScyCan1.1 newBalance",
+           "OligoMiner hg38 balance",
+           "OligoMiner hg19 balance",
+           "2012 oligopaints hg19",
+           "iFISH4U 40-mer hg19"),
+  link = c("http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/hg38_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/hg19_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/chm13_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/mm39_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/mm10_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/mm9_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/dm6_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/ce11_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/danRer11_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/TAIR10_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/sacCer3_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/rn6_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/galGal5_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/galGal6_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/rheMac10_all_newBalance.zip1",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/xenTro10_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/Nfu_20140520_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/AaegL5.0_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/susScr11_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/ASM694v2_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/sScyCan1.1_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/hg38b_all_newBalance.zip1",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/hg19b_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/hg19_2012_all_newBalance.zip",
+    "http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/iFISH4U_all_newBalance.zip")
+  # links from Antonios Lioutas Dropbox
+  # link = c(#"https://www.dropbox.com/scl/fi/0b2zyqjpsb0p9rjvj8yzc/hg38_all_newBalance.zip?rlkey=cn7vr23qvzqsicd2fqonqns05&dl=1",
+  #          'http://hmsrsc-wulab-data.s3.amazonaws.com/oligopaints/hg38_all_newBalance.zip',
+  #          "https://www.dropbox.com/scl/fi/s1xozcdmahgr21cuc7rc9/hg19_all_newBalance.zip?rlkey=e9systtyq0s3njdrm9icadm4p&dl=1",
+  #          "https://www.dropbox.com/scl/fi/grqcj57i3rezpj0j1xw4n/chm13_all_newBalance.zip?rlkey=k9iwbgnd8h8hkukbcgqqtml5m&dl=1",
+  #          "https://www.dropbox.com/scl/fi/jndqqj3jrnjtplmbiop73/mm39_all_newBalance.zip?rlkey=fe1fh6kh1cp4yvjetd6evhwly&dl=1",
+  #          "https://www.dropbox.com/scl/fi/stcg03kj9esgw5h6w3eve/mm10_all_newBalance.zip?rlkey=2r8lj18b80o7w7mq43bf0wtvn&dl=1",
+  #          "https://www.dropbox.com/scl/fi/k3rpaumj8ajvlcb7jbvis/mm9_all_newBalance.zip?rlkey=1scdxee5k82ff4a3bovjewr8l&dl=1",
+  #          "https://www.dropbox.com/scl/fi/swxbdzxrufivke4jickov/dm6_all_newBalance.zip?rlkey=9bzz2vwoy88cax1uh4evrxubv&dl=1",
+  #          "https://www.dropbox.com/scl/fi/ygyndahitvef71mgcw3ct/ce11_all_newBalance.zip?rlkey=i3o1zybfrs3olwt44ggr2iuzu&dl=1",
+  #          "https://www.dropbox.com/scl/fi/39l9i8sv3b4q5rgoia5ui/danRer11_all_newBalance.zip?rlkey=54oqf23rzfvsd5vgqgs8dnah7&dl=1",
+  #          "https://www.dropbox.com/scl/fi/tvc508cy2bexmmliaa4hy/TAIR10_all_newBalance.zip?rlkey=4udybokzbvz8j285ywf8r3cfm&dl=1",
+  #          "https://www.dropbox.com/scl/fi/e4pcksr2ss4qhhe1dr3fy/sacCer3_all_newBalance.zip?rlkey=opyv39166f27f7y0taq90nvh0&dl=1",
+  #          "https://www.dropbox.com/scl/fi/np8801n6a05a9r816tor5/rn6_all_newBalance.zip?rlkey=i3tlc4puarshmunsccw50ys7s&dl=1",
+  #          "https://www.dropbox.com/scl/fi/mf2sktcd9bh46zc0odltr/galGal5_all_newBalance.zip?rlkey=iv4pkv6yijlu055vvwwkl282h&dl=1",
+  #          "https://www.dropbox.com/scl/fi/9xzivtglqi26uh05mmot3/galGal6_all_newBalance.zip?rlkey=tys965xj2yp8cd3vv2hqvb3fp&dl=1",
+  #          "https://www.dropbox.com/scl/fi/ns4lnfd6l8rc9srfs2dpa/rheMac10_all_newBalance.zip?rlkey=1loz57thphnf5w3t5xbkbtl5t&dl=1",
+  #          "https://www.dropbox.com/scl/fi/5trswh7wzts0d7lk939hu/xenTro10_all_newBalance.zip?rlkey=arvfdmo98qgzp2cydpcuu1wtm&dl=1",
+  #          "https://www.dropbox.com/scl/fi/xxsgo4w79tcanzv0d13eu/Nfu_20140520_all_newBalance.zip?rlkey=4xfls4sm2vv6u7jgtqzh87810&dl=1",
+  #          "https://www.dropbox.com/scl/fi/9sgu0wl1weo3r6ji2im5k/AaegL5.0_all_newBalance.zip?rlkey=pd2vbp9kug30qyoj6gqocd7sr&dl=1",
+  #          "https://www.dropbox.com/scl/fi/0vxj10vvad6rv3aduojdx/susScr11_all_newBalance.zip?rlkey=19wktl3uu2pern1ae8kl1zmt4&dl=1",
+  #          "https://www.dropbox.com/scl/fi/at3bbj9n08zt0krtjih72/ASM694v2_all_newBalance.zip?rlkey=xh5tl0tdj6g4tq887h8jn56vb&dl=1",
+  #          "https://www.dropbox.com/scl/fi/9ycqfam4b5sdvzmgc8i4i/sScyCan1.1_all_newBalance.zip?rlkey=czb8qwvhs3rw1el3n5v6bga00&dl=1",
+  #          "https://www.dropbox.com/scl/fi/2teqfar9d1f9q60mnuq1k/hg38b_all_newBalance.zip?rlkey=eu20zqga9nxjbbivy2ivmw2hd&dl=1",
+  #          "https://www.dropbox.com/scl/fi/uo4mkwc1ejat452fym64g/hg19b_all_newBalance.zip?rlkey=ya169ray41n8pbtrukzlskesz&dl=1",
+  #          "https://www.dropbox.com/scl/fi/u2yzjxrullb1tmiks0hz4/hg19_2012_all_newBalance.zip?rlkey=7202f7uyjgmilkanz4rvouwbs&dl=1",
+  #          "https://www.dropbox.com/scl/fi/4iravbdz8p0v0659tup0k/iFISH4U_all_newBalance.zip?rlkey=il7wc1ibrf4fkv6ugvpcl39hq&dl=1")
+  # links from PaintSHOP
+  # link = c("https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/hg38_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/hg19_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/chm13_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/mm39_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/mm10_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/mm9_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/dm6_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/ce11_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/danRer11_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/TAIR10_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/sacCer3_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/rn6_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/galGal5_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/galGal6_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/rheMac10_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/xenTro10_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/Nfu_20140520_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/AaegL5.0_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/susScr11_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/ASM694v2_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/sScyCan1.1_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/hg38b_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/hg19b_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/hg19_2012_all_newBalance.zip",
+  #          "https://paintshop-bucket.s3.amazonaws.com/v1.2/resources/all/iFISH4U_all_newBalance.zip"           
+  #          )
+)
+
+# T7 sequence
+
+T7 <- "TAATACGACTCACTATAGGG"
+
+
 # Create Pairs of oligoSTORM sequences   -------------------------------------------------------------------
 ## and select from toes and streets files the seqeuences.
-create_pairs <- function(data = comb_ops(), ms_input = input$append_streets_uni_ms, bs_input = input$append_streets_uni_bs, ms_id = "id_uni_ms", bs_id = "id_uni_bs", .streets = streets(), .toes = toes(), .available_os_barcodes = available_os_barcodes(), .matched_streets = matched_streets()) { #, .previous_df = NULL
+create_pairs <- function(data = comb_ops(),
+                         ms_input = input$append_streets_uni_ms,
+                         bs_input = input$append_streets_uni_bs,
+                         ms_id = "id_uni_ms",
+                         bs_id = "id_uni_bs",
+                         .streets = streets(),
+                         .toes = toes(),
+                         .available_os_barcodes = available_os_barcodes(),
+                         .available_multiplex_barcodes = multiplex_list(),
+                         .matched_streets = matched_streets(),
+                         input_ofq_bits = input_sec_ofq_reactive(), 
+                         input_lambda_bits = input_sec_lambda_reactive, 
+                         bs_rc = FALSE) {
+  #, .previous_df = NULL
   require(tidyverse)
-  ############## TO DO
-  # - See if you can find a way to be consistent in the barcode appended for names, maybe only do the os pairs for universals and not for the rest
-  # 
+
+  #transform id to character from list
+  .available_multiplex_barcodes$id <- as.character(.available_multiplex_barcodes$id)
   
-  # if(!is.null(.previous_df) ){
-  #   .available_os_barcodes <- setdiff(.available_os_barcodes, unique(c(.previous_df$ms_num, .previous_df$bs_num)))
-  # }
-  
-  # BOTH MS and BS need to be appended
+  #####################################
+  # BOTH MS and BS needs to be appended
+  #####################################
   if (!is.null(ms_input) && !is.null(bs_input)) {
-    if ((ms_input == "toe_seq_im" | ms_input == "seq_im") && (bs_input == "toe_seq_im" | bs_input == "seq_im")) {
+    if ((ms_input == "toe_seq_im" | ms_input == "seq_im") &&
+        (bs_input == "toe_seq_im" | bs_input == "seq_im")) {
       df <- data %>%
         ungroup() %>%
         distinct(ms = .[[rlang::as_name(enquo(ms_id))]], bs = .[[rlang::as_name(enquo(bs_id))]]) #%>%
@@ -25,6 +201,7 @@ create_pairs <- function(data = comb_ops(), ms_input = input$append_streets_uni_
       # NAs are added to the following columns, these NAs will be replaced by matched os pairs
       
       
+      
       for (i in 1:nrow(df)) {
         if (i == 1) {
           df$ms_num[i] <- .available_os_barcodes[1]
@@ -34,7 +211,7 @@ create_pairs <- function(data = comb_ops(), ms_input = input$append_streets_uni_
           .available_os_barcodes <- .available_os_barcodes[-1]
           df$bs_num[i] <- all_num[1]
           .available_os_barcodes <- .available_os_barcodes[-1]
-        } else{
+        } else {
           if (df$ms[i] != df$ms[i - 1] && df$bs[i] != df$bs[i - 1]) {
             df$ms_num[i] <- .available_os_barcodes[1]
             all_num <-
@@ -65,98 +242,469 @@ create_pairs <- function(data = comb_ops(), ms_input = input$append_streets_uni_
           }
         }
       }
-      df$ms_street <- .streets[df$ms_num, ]$streets
-      df$ms_toe <- .toes[df$ms_num, ]$toes
-      df$bs_street <- .streets[df$bs_num, ]$streets
-      df$bs_toe <- .toes[df$bs_num, ]$toes
+      df$ms_street <- .streets[df$ms_num,]$streets
+      df$ms_toe <- .toes[df$ms_num,]$toes
+      df$bs_street <- ifelse(bs_rc, rc(.streets[df$bs_num,]$streets), .streets[df$bs_num,]$streets)
+      df$bs_toe <- ifelse(bs_rc, rc(.toes[df$bs_num,]$toes),.toes[df$bs_num,]$toes)
       
-    } else if ((ms_input == "toe_seq_im" | ms_input == "seq_im") && bs_input == "ofq") {
+    } else if ((ms_input == "toe_seq_im" | ms_input == "seq_im") &&
+               (bs_input == "ofq" | bs_input == "lambdaFISH")) {
       df_os <- data %>%
         ungroup() %>%
         distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
       #rename_with(~gsub({{ ms_id }}, "ms", .x, fixed = TRUE))
       df_os$ms_num <- .available_os_barcodes[1:nrow(df_os)]
-      df_os$ms_street <- .streets[df_os$ms_num, ]$streets
-      df_os$ms_toe <- .toes[df_os$ms_num, ]$toes
+      df_os$ms_street <- .streets[df_os$ms_num,]$streets
+      df_os$ms_toe <- .toes[df_os$ms_num,]$toes
       .available_os_barcodes <-
-        .available_os_barcodes[-df_os$ms_num]
+        .available_os_barcodes[-which(.available_os_barcodes %in% df_os$ms_num)]
       
-      df_ofq <- data %>%
-        ungroup() %>%
-        distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
-      df_ofq$bs_ofq_key <- 1:nrow(df_ofq)
-      df_ofq$bs_ofq_seq_primer <- .available_os_barcodes[1]
-      .available_os_barcodes <-
-        .available_os_barcodes[-df_ofq$bs_ofq_seq_primer]
       
+      
+      
+      if (bs_input == "ofq") {
+        df_multiplex <- data %>%
+          ungroup() %>%
+          distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
+        # df$bs_ofq_key <- .available_multiplex_barcodes$barcode[1:nrow(df)]
+        df_multiplex <-
+          left_join(df_multiplex,
+                    .available_multiplex_barcodes,
+                    by = c("bs" = "id")) %>%
+          rename(bs_ofq_key = barcode)
+        
+        df_multiplex$bs_ofq_seq_primer_num <-
+          .available_os_barcodes[1]
+        df_multiplex$bs_ofq_seq_primer <-
+          .streets[df_multiplex$bs_ofq_seq_primer_num, ]$streets
+        .available_os_barcodes <-
+          .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$bs_ofq_seq_primer_num)]
+        
+        
+        
+        # add OFQ barcode sequence
+        df_multiplex$bs_ofq_barcode <- as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex$bs_ofq_key), ""))) %>% 
+          mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_ofq_bits$Sequence[[1]],
+                                                   . == 2 ~ input_ofq_bits$Sequence[[2]],
+                                                   . == 3 ~ input_ofq_bits$Sequence[[3]],
+                                                   . == 4 ~ input_ofq_bits$Sequence[[4]],
+                                                   .default = ""))) %>%
+          # bind all columns in one
+          unite("ofq_barcode_seq", starts_with("V"), sep = "") %>%
+          pull(ofq_barcode_seq)
+        
+        
+      } else if (bs_input == "lambdaFISH") {
+        df_multiplex <- data %>%
+          ungroup() %>%
+          distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
+        
+        df_multiplex$bs_num <- .available_os_barcodes[1:nrow(df_multiplex)]
+        df_multiplex$bs_street <- .streets[df_multiplex$bs_num,]$streets
+        df_multiplex$bs_toe <- .toes[df_multiplex$bs_num,]$toes
+        
+        .available_os_barcodes <-
+          .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$bs_num)]
+        
+        
+        
+        df_multiplex <-
+          left_join(df_multiplex,
+                    .available_multiplex_barcodes,
+                    by = c("bs" = "id")) %>%
+          rename(bs_lambdaFISH_key = barcode)
+        # Add same FWD amplification primer to lambdaFISH
+        df_multiplex$bs_FWD_primer_num_lambdaFISH <- .available_os_barcodes[1]
+        df_multiplex$bs_FWD_primer_lambdaFISH <- .streets[df_multiplex$bs_FWD_primer_num_lambdaFISH, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$bs_FWD_primer_num_lambdaFISH)]
+        
+        # Determine the number of REV primers based on the first element of bs_lambdaFISH_key
+        num_rev_primers <- nchar(df_multiplex$bs_lambdaFISH_key[1])
+        
+        # Update .available_os_barcodes to get the REV primers
+        bs_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
+        
+        # Create new columns for each REV primer in df_multiplex
+        for (i in seq_len(num_rev_primers)) {
+          # Get the REV primer number and primer
+          bs_lambdaFISH_REV_primer_num <- bs_lambdaFISH_REV_primer_nums[i]
+          bs_lambdaFISH_REV_primer <- .streets[bs_lambdaFISH_REV_primer_num, ]$streets
+          
+          # Add the new columns to df_multiplex
+          df_multiplex <- df_multiplex %>%
+            mutate(!!paste0("bs_REV_primer_num_lambdaFISH", i) := bs_lambdaFISH_REV_primer_num,
+                   !!paste0("bs_REV_primer_lambdaFISH", i) := bs_lambdaFISH_REV_primer)
+        }
+        # Update .available_os_barcodes
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% bs_lambdaFISH_REV_primer_nums)]
+        
+        # Add another column for the toe reverse primer
+        df_multiplex$bs_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
+        df_multiplex$bs_REV_primer_lambdaFISHtoe <- .streets[df_multiplex$bs_REV_primer_num_lambdaFISHtoe, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$bs_REV_primer_num_lambdaFISHtoe)]
+        
+        # Create new columns for each lambda seq in df
+        df_multiplex <- df_multiplex %>% 
+          bind_cols(., as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex$bs_lambdaFISH_key), ""))) %>%
+                      mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_lambda_bits$Sequence[[1]],
+                                                               . == 2 ~ input_lambda_bits$Sequence[[2]],
+                                                               . == 3 ~ input_lambda_bits$Sequence[[3]],
+                                                               . == 4 ~ input_lambda_bits$Sequence[[4]],
+                                                               .default = "")))
+          ) %>%
+          #rename columns containing V to lambda_seq
+          rename_with(~ str_replace(., "V", "bs_sec_lambdaFISH"), starts_with("V"))
+        
+      }
+
       df_pairs <- data %>%
         ungroup() %>%
         distinct(ms = .[[rlang::as_name(enquo(ms_id))]], bs = .[[rlang::as_name(enquo(bs_id))]])
       
       df <- df_pairs %>%
         left_join(df_os, by = "ms") %>%
-        left_join(df_ofq, by = "bs")
+        left_join(df_multiplex, by = "bs")
       
-    } else if (ms_input == "ofq" && (bs_input == "toe_seq_im" | bs_input == "seq_im")) {
+    } else if ((ms_input == "ofq" | ms_input == "lambdaFISH") &&
+               (bs_input == "toe_seq_im" | bs_input == "seq_im")) {
       df_os <- data %>%
         ungroup() %>%
         distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
       #rename_with(~gsub({{ ms_id }}, "ms", .x, fixed = TRUE))
       df_os$bs_num <- .available_os_barcodes[1:nrow(df_os)]
-      df_os$bs_street <- .streets[df_os$bs_num, ]$streets
-      df_os$bs_toe <- .toes[df_os$bs_num, ]$toes
-      .available_os_barcodes <-
-        .available_os_barcodes[-df_os$bs_num]
       
-      df_ofq <- data %>%
-        ungroup() %>%
-        distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
-      df_ofq$ms_ofq_key <- 1:nrow(df_ofq)
-      df_ofq$ms_ofq_seq_primer <- .available_os_barcodes[1]
+      df_os$bs_street <- ifelse(bs_rc, rc(.streets[df_os$bs_num,]$streets), .streets[df_os$bs_num,]$streets)
+      df_os$bs_toe <- ifelse(bs_rc, rc(.toes[df_os$bs_num, ]$toes),.toes[df_os$bs_num, ]$toes)
+
       .available_os_barcodes <-
-        .available_os_barcodes[-df_ofq$ms_ofq_seq_primer]
+        .available_os_barcodes[-which(.available_os_barcodes %in% df_os$bs_num)]
+      
+      
+      if (ms_input == "ofq") {
+        df_multiplex <- data %>%
+          ungroup() %>%
+          distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
+        # df$ms_ofq_key <- .available_multiplex_barcodes$barcode[1:nrow(df)]
+        df_multiplex <-
+          left_join(df_multiplex,
+                    .available_multiplex_barcodes,
+                    by = c("ms" = "id")) %>%
+          rename(ms_ofq_key = barcode)
+        
+        df_multiplex$ms_ofq_seq_primer_num <-
+          .available_os_barcodes[1]
+        df_multiplex$ms_ofq_seq_primer <-
+          .streets[df_multiplex$ms_ofq_seq_primer_num, ]$streets
+        .available_os_barcodes <-
+          .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$ms_ofq_seq_primer_num)]
+        
+        
+        
+        # add OFQ barcode sequence
+        df_multiplex$ms_ofq_barcode <- as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex$ms_ofq_key), ""))) %>% 
+          mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_ofq_bits$Sequence[[1]],
+                                                      . == 2 ~ input_ofq_bits$Sequence[[2]],
+                                                      . == 3 ~ input_ofq_bits$Sequence[[3]],
+                                                      . == 4 ~ input_ofq_bits$Sequence[[4]],
+                                                      .default = ""))) %>%
+          # bind all columns in one
+          unite("ofq_barcode_seq", starts_with("V"), sep = "") %>%
+          pull(ofq_barcode_seq)
+        
+        
+      }else if (ms_input == "lambdaFISH") {
+        df_multiplex <- data %>%
+          ungroup() %>%
+          distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
+        
+        df_multiplex$ms_num <- .available_os_barcodes[1:nrow(df_multiplex)]
+        df_multiplex$ms_street <- .streets[df_multiplex$ms_num,]$streets
+        df_multiplex$ms_toe <- .toes[df_multiplex$ms_num,]$toes
+        
+        .available_os_barcodes <-
+          .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$ms_num)]
+        
+        
+        
+        df_multiplex <-
+          left_join(df_multiplex,
+                    .available_multiplex_barcodes,
+                    by = c("ms" = "id")) %>%
+          rename(bs_lambdaFISH_key = barcode)
+        # Add same FWD amplification primer to lambdaFISH
+        df_multiplex$ms_FWD_primer_num_lambdaFISH <- .available_os_barcodes[1]
+        df_multiplex$ms_FWD_primer_lambdaFISH <- .streets[df_multiplex$ms_FWD_primer_num_lambdaFISH, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$ms_FWD_primer_num_lambdaFISH)]
+        
+        # Determine the number of REV primers based on the first element of ms_lambdaFISH_key
+        num_rev_primers <- nchar(df_multiplex$ms_lambdaFISH_key[1])
+        
+        # Update .available_os_barcodes to get the REV primers
+        ms_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
+        
+        # Create new columns for each REV primer in df_multiplex
+        for (i in seq_len(num_rev_primers)) {
+          # Get the REV primer number and primer
+          ms_lambdaFISH_REV_primer_num <- ms_lambdaFISH_REV_primer_nums[i]
+          ms_lambdaFISH_REV_primer <- .streets[ms_lambdaFISH_REV_primer_num, ]$streets
+          
+          # Add the new columns to df_multiplex
+          df_multiplex <- df_multiplex %>%
+            mutate(!!paste0("ms_REV_primer_num_lambdaFISH", i) := ms_lambdaFISH_REV_primer_num,
+                   !!paste0("ms_REV_primer_lambdaFISH", i) := ms_lambdaFISH_REV_primer)
+        }
+        # Update .available_os_barcodes
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% ms_lambdaFISH_REV_primer_nums)]
+        
+        # Add another column for the toe reverse primer
+        df_multiplex$ms_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
+        df_multiplex$ms_REV_primer_lambdaFISHtoe <- .streets[df_multiplex$ms_REV_primer_num_lambdaFISHtoe, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex$ms_REV_primer_num_lambdaFISHtoe)]
+        
+        # Create new columns for each lambda seq in df
+        df_multiplex <- df_multiplex %>% 
+          bind_cols(., as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex$ms_lambdaFISH_key), ""))) %>%
+                      mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_lambda_bits$Sequence[[1]],
+                                                               . == 2 ~ input_lambda_bits$Sequence[[2]],
+                                                               . == 3 ~ input_lambda_bits$Sequence[[3]],
+                                                               . == 4 ~ input_lambda_bits$Sequence[[4]],
+                                                               .default = "")))
+          ) %>%
+          #rename columns containing V to lambda_seq
+          rename_with(~ str_replace(., "V", "ms_sec_lambdaFISH"), starts_with("V"))
+        
+      }
       
       df_pairs <- data %>%
         ungroup() %>%
         distinct(ms = .[[rlang::as_name(enquo(ms_id))]], bs = .[[rlang::as_name(enquo(bs_id))]])
       
       df <- df_pairs %>%
-        left_join(df_ofq, by = "ms") %>%
+        left_join(df_multiplex, by = "ms") %>%
         left_join(df_os, by = "bs")
       
-    }
-    if (ms_input == "ofq" &&  bs_input == "ofq") {
-      df <- data %>%
+    } 
+    
+    if ((ms_input == "ofq" | ms_input == "lambdaFISH") &&
+        (bs_input == "ofq" | bs_input == "lambdaFISH")) {
+      
+      df_multiplex_ms <- data %>%
+        ungroup() %>%
+        distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
+      
+      df_multiplex_bs <- data %>%
+        ungroup() %>%
+        distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
+      
+      if (ms_input == "ofq") {
+        df_multiplex_ms <-
+          left_join(df_multiplex_ms,
+                    .available_multiplex_barcodes,
+                    by = c("ms" = "id")) %>%
+          rename(ms_ofq_key = barcode)
+        
+        # add OFQ barcode 
+        df_multiplex_ms$ms_ofq_seq_primer_num <- .available_os_barcodes[1]
+        df_multiplex_ms$ms_ofq_seq_primer <-.streets[df_multiplex_ms$ms_ofq_seq_primer_num, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_ms$ms_ofq_seq_primer_num)]
+        
+        # add OFQ barcode sequence
+        df_multiplex_ms$ms_ofq_barcode <- as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex_ms$ms_ofq_key), ""))) %>% 
+          mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_ofq_bits$Sequence[[1]],
+                                                   . == 2 ~ input_ofq_bits$Sequence[[2]],
+                                                   . == 3 ~ input_ofq_bits$Sequence[[3]],
+                                                   . == 4 ~ input_ofq_bits$Sequence[[4]],
+                                                   .default = ""))) %>%
+          # bind all columns in one
+          unite("ofq_barcode_seq", starts_with("V"), sep = "") %>%
+          pull(ofq_barcode_seq)
+        
+      } else if (ms_input == "lambdaFISH") {
+        df_multiplex_ms <-
+          left_join(df_multiplex_ms,
+                    .available_multiplex_barcodes,
+                    by = c("ms" = "id")) %>%
+          rename(ms_lambdaFISH_key = barcode)
+        
+        df_multiplex_ms$ms_num <- .available_os_barcodes[1:nrow(df_multiplex_ms)]
+        df_multiplex_ms$ms_street <- .streets[df_multiplex_ms$ms_num,]$streets
+        df_multiplex_ms$ms_toe <- .toes[df_multiplex_ms$ms_num,]$toes
+        .available_os_barcodes <-
+          .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_ms$ms_num)]
+        
+        # Add same FWD amplification primer to lambdaFISH
+        df_multiplex_ms$ms_FWD_primer_num_lambdaFISH <- .available_os_barcodes[1]
+        df_multiplex_ms$ms_FWD_primer_lambdaFISH <- .streets[df_multiplex_ms$ms_FWD_primer_num_lambdaFISH, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_ms$ms_FWD_primer_num_lambdaFISH)]
+        
+        # Determine the number of REV primers based on the first element of ms_lambdaFISH_key
+        num_rev_primers <- nchar(df_multiplex_ms$ms_lambdaFISH_key[1])
+        
+        # Update .available_os_barcodes to get the REV primers
+        ms_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
+        
+        # Create new columns for each REV primer in df_multiplex_ms
+        for (i in seq_len(num_rev_primers)) {
+          # Get the REV primer number and primer
+          ms_lambdaFISH_REV_primer_num <- ms_lambdaFISH_REV_primer_nums[i]
+          ms_lambdaFISH_REV_primer <- .streets[ms_lambdaFISH_REV_primer_num, ]$streets
+          
+          # Add the new columns to df_multiplex_ms
+          df_multiplex_ms <- df_multiplex_ms %>%
+            mutate(!!paste0("ms_REV_primer_num_lambdaFISH", i) := ms_lambdaFISH_REV_primer_num,
+                   !!paste0("ms_REV_primer_lambdaFISH", i) := ms_lambdaFISH_REV_primer)
+        }
+        # Update .available_os_barcodes
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% ms_lambdaFISH_REV_primer_nums)]
+        
+        # Add another column for the toe reverse primer
+        df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
+        df_multiplex_ms$ms_REV_primer_lambdaFISHtoe <- .streets[df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe)]
+        
+        # Create new columns for each lambda seq in df
+        df_multiplex_ms <- df_multiplex_ms %>% 
+          bind_cols(., as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex_ms$ms_lambdaFISH_key), ""))) %>%
+                      mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_lambda_bits$Sequence[[1]],
+                                                               . == 2 ~ input_lambda_bits$Sequence[[2]],
+                                                               . == 3 ~ input_lambda_bits$Sequence[[3]],
+                                                               . == 4 ~ input_lambda_bits$Sequence[[4]],
+                                                               .default = "")))
+          ) %>%
+          #rename columns containing V to lambda_seq
+          rename_with(~ str_replace(., "V", "ms_sec_lambdaFISH"), starts_with("V"))
+
+        
+      }
+      
+      
+      if (bs_input == "ofq") {
+        df_multiplex_bs <-
+          left_join(df_multiplex_bs,
+                    .available_multiplex_barcodes,
+                    by = c("bs" = "id")) %>%
+          rename(bs_ofq_key = barcode)
+        df_multiplex_bs$bs_ofq_seq_primer_num <- .available_os_barcodes[1]
+        df_multiplex_bs$bs_ofq_seq_primer <-.streets[df_multiplex_bs$bs_ofq_seq_primer_num, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_ofq_seq_primer_num)]
+        
+        # add OFQ barcode 
+        df_multiplex_bs$bs_ofq_seq_primer_num <- .available_os_barcodes[1]
+        df_multiplex_bs$bs_ofq_seq_primer <-.streets[df_multiplex_bs$bs_ofq_seq_primer_num, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_ofq_seq_primer_num)]
+        
+        # add OFQ barcode sequence
+        df_multiplex_bs$bs_ofq_barcode <- as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex_bs$bs_ofq_key), ""))) %>% 
+          mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_ofq_bits$Sequence[[1]],
+                                                   . == 2 ~ input_ofq_bits$Sequence[[2]],
+                                                   . == 3 ~ input_ofq_bits$Sequence[[3]],
+                                                   . == 4 ~ input_ofq_bits$Sequence[[4]],
+                                                   .default = ""))) %>%
+          # bind all columns in one
+          unite("ofq_barcode_seq", starts_with("V"), sep = "") %>%
+          pull(ofq_barcode_seq)
+        
+      } else if (bs_input == "lambdaFISH") {
+        df_multiplex_bs <-
+          left_join(df_multiplex_bs,
+                    .available_multiplex_barcodes,
+                    by = c("bs" = "id")) %>%
+          rename(bs_lambdaFISH_key = barcode)
+        
+        df_multiplex_bs$bs_num <- .available_os_barcodes[1:nrow(df_multiplex_bs)]
+        df_multiplex_bs$bs_street <- .streets[df_multiplex_bs$bs_num,]$streets
+        df_multiplex_bs$bs_toe <- .toes[df_multiplex_bs$bs_num,]$toes
+        .available_os_barcodes <-
+          .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_num)]
+        
+        # Add same FWD amplification primer to lambdaFISH
+        df_multiplex_bs$bs_FWD_primer_num_lambdaFISH <- .available_os_barcodes[1]
+        df_multiplex_bs$bs_FWD_primer_lambdaFISH <- .streets[df_multiplex_bs$bs_FWD_primer_num_lambdaFISH, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_FWD_primer_num_lambdaFISH)]
+        
+        # Determine the number of REV primers based on the first element of bs_lambdaFISH_key
+        num_rev_primers <- nchar(df_multiplex_bs$bs_lambdaFISH_key[1])
+        
+        # Update .available_os_barcodes to get the REV primers
+        bs_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
+        
+        # Create new columns for each REV primer in df_multiplex_bs
+        for (i in seq_len(num_rev_primers)) {
+          # Get the REV primer number and primer
+          bs_lambdaFISH_REV_primer_num <- bs_lambdaFISH_REV_primer_nums[i]
+          bs_lambdaFISH_REV_primer <- .streets[bs_lambdaFISH_REV_primer_num, ]$streets
+          
+          # Add the new columns to df_multiplex_bs
+          df_multiplex_bs <- df_multiplex_bs %>%
+            mutate(!!paste0("bs_REV_primer_num_lambdaFISH", i) := bs_lambdaFISH_REV_primer_num,
+                   !!paste0("bs_REV_primer_lambdaFISH", i) := bs_lambdaFISH_REV_primer)
+        }
+        # Update .available_os_barcodes
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% bs_lambdaFISH_REV_primer_nums)]
+        
+        # Add another column for the toe reverse primer
+        df_multiplex_bs$bs_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
+        df_multiplex_bs$bs_REV_primer_lambdaFISHtoe <- .streets[df_multiplex_bs$bs_REV_primer_num_lambdaFISHtoe, ]$streets
+        .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_REV_primer_num_lambdaFISHtoe)]
+        
+        # Create new columns for each lambda seq in df
+        df_multiplex_bs <- df_multiplex_bs %>% 
+          bind_cols(., as.data.frame(do.call(rbind, strsplit(as.character(df_multiplex_bs$bs_lambdaFISH_key), ""))) %>%
+                      mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_lambda_bits$Sequence[[1]],
+                                                               . == 2 ~ input_lambda_bits$Sequence[[2]],
+                                                               . == 3 ~ input_lambda_bits$Sequence[[3]],
+                                                               . == 4 ~ input_lambda_bits$Sequence[[4]],
+                                                               .default = "")))
+          ) %>%
+          #rename columns containing V to lambda_seq
+          rename_with(~ str_replace(., "V", "bs_sec_lambdaFISH"), starts_with("V"))
+        
+        
+        
+      }
+      
+      
+
+      df_pairs <- data %>%
         ungroup() %>%
         distinct(ms = .[[rlang::as_name(enquo(ms_id))]], bs = .[[rlang::as_name(enquo(bs_id))]])
-      df$ms_ofq_key <- 1:nrow(df)
-      df$ms_ofq_seq_primer <- .available_os_barcodes[1]
-      df$bs_ofq_key <- nrow(df):(nrow(df) * 2 - 1)
-      df$bs_ofq_seq_primer <- .available_os_barcodes[2]
-      .available_os_barcodes <- .available_os_barcodes[-c(1, 2)]
+      
+      df <- df_pairs %>%
+        left_join(df_multiplex_ms, by = "ms") %>%
+        left_join(df_multiplex_bs, by = "bs")
+      # df <- data %>%
+      #   ungroup() %>%
+      #   distinct(ms = .[[rlang::as_name(enquo(ms_id))]], bs = .[[rlang::as_name(enquo(bs_id))]])
+      # df$ms_ofq_key <- 1:nrow(df)
+      # df$ms_ofq_seq_primer <- .available_os_barcodes[1]
+      # df$bs_ofq_key <- nrow(df):(nrow(df) * 2 - 1)
+      # df$bs_ofq_seq_primer <- .available_os_barcodes[2]
+      # .available_os_barcodes <- .available_os_barcodes[-c(1, 2)]
     }
     
-    if(str_detect(bs_id, "uni")){
-      names(df) <- gsub("ms", "uni_ms",names(df), fixed = TRUE)
-      names(df) <- gsub("bs", "uni_bs",names(df), fixed = TRUE)
+    if (str_detect(bs_id, "uni")) {
+      names(df) <- gsub("ms", "uni_ms", names(df), fixed = TRUE)
+      names(df) <- gsub("bs", "uni_bs", names(df), fixed = TRUE)
       # df <- df %>%
-      #   rename_with(~gsub("ms", "uni_ms",.x, fixed = TRUE)) %>% 
+      #   rename_with(~gsub("ms", "uni_ms",.x, fixed = TRUE)) %>%
       #   rename_with(~gsub("bs", "uni_bs",.x, fixed = TRUE))
-    } else if(str_detect(bs_id, "1")){
-      names(df) <- gsub("ms", "ms1",names(df), fixed = TRUE)
-      names(df) <- gsub("bs", "bs1",names(df), fixed = TRUE)
-      # df <- df %>% 
-      #   rename_with(~gsub("ms", "ms1",.x, fixed = TRUE)) %>% 
+    } else if (str_detect(bs_id, "1")) {
+      names(df) <- gsub("ms", "ms1", names(df), fixed = TRUE)
+      names(df) <- gsub("bs", "bs1", names(df), fixed = TRUE)
+      # df <- df %>%
+      #   rename_with(~gsub("ms", "ms1",.x, fixed = TRUE)) %>%
       #   rename_with(~gsub("bs", "bs1",.x, fixed = TRUE))
-    } else if(str_detect(bs_id, "2")){
-      names(df) <- gsub("ms", "ms2",names(df), fixed = TRUE)
-      names(df) <- gsub("bs", "bs2",names(df), fixed = TRUE)
-      # df <- df %>% 
-      #   rename_with(~gsub("ms", "ms2",.x, fixed = TRUE)) %>% 
+    } else if (str_detect(bs_id, "2")) {
+      names(df) <- gsub("ms", "ms2", names(df), fixed = TRUE)
+      names(df) <- gsub("bs", "bs2", names(df), fixed = TRUE)
+      # df <- df %>%
+      #   rename_with(~gsub("ms", "ms2",.x, fixed = TRUE)) %>%
       #   rename_with(~gsub("bs", "bs2",.x, fixed = TRUE))
     }
     
+    ###############################
     # ONLY MS needs to be appended
+    ###############################
   } else if (!is.null(ms_input) && is.null(bs_input)) {
     if (ms_input == "toe_seq_im" | ms_input == "seq_im") {
       df <- data %>%
@@ -165,37 +713,127 @@ create_pairs <- function(data = comb_ops(), ms_input = input$append_streets_uni_
       #rename_with(~gsub({{ ms_id }}, "ms", .x, fixed = TRUE))
       df$ms_num <- .available_os_barcodes[1:nrow(df)]
       df$ms_street <- .streets[df$ms_num,]$streets
-      df$ms_toe <- .toes[df$ms_num,]$toes
+      df$ms_toe <- .toes[df$ms_num, ]$toes
       .available_os_barcodes <-
-        .available_os_barcodes[-df$ms_num]
+        .available_os_barcodes[-which(.available_os_barcodes %in% df$ms_num)]
     } else if (ms_input == "ofq") {
       df <- data %>%
         ungroup() %>%
         distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
-      df$ms_ofq_key <- 1:nrow(df)
-      df$ms_ofq_seq_primer <- .available_os_barcodes[1]
+      # df$bs_ofq_key <- .available_multiplex_barcodes$barcode[1:nrow(df)]
+      df <-
+        left_join(df, .available_multiplex_barcodes, by = c("ms" = "id")) %>%
+        rename(ms_ofq_key = barcode)
+      df$ms_ofq_seq_primer_num <- .available_os_barcodes[1]
+      df$ms_ofq_seq_primer <-
+        .streets[df$ms_ofq_seq_primer_num, ]$streets
       .available_os_barcodes <-
-        .available_os_barcodes[-df$ms_ofq_seq_primer]
-    }
+        .available_os_barcodes[-which(.available_os_barcodes %in% df$ms_ofq_seq_primer_num)]
+      
+      # add OFQ barcode sequence
+      df$ms_ofq_barcode <- as.data.frame(do.call(rbind, strsplit(as.character(df$ms_ofq_key), ""))) %>% 
+        mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_ofq_bits$Sequence[[1]],
+                                                 . == 2 ~ input_ofq_bits$Sequence[[2]],
+                                                 . == 3 ~ input_ofq_bits$Sequence[[3]],
+                                                 . == 4 ~ input_ofq_bits$Sequence[[4]],
+                                                 .default = ""))) %>%
+        # bind all columns in one
+        unite("ofq_barcode_seq", starts_with("V"), sep = "") %>%
+        pull(ofq_barcode_seq)
 
-    if(str_detect(ms_id, "uni")){
+      #   bind_cols(as.data.frame(do.call(rbind, strsplit(as.character(.$barcode), ""))) %>%
+      #               # change numbers to sequences
+      #               mutate(across(starts_with("V"), ~ case_when(. == 1 ~ sequences[[1]],
+      #                                                        . == 2 ~ sequences[[2]],
+      #                                                        . == 3 ~ sequences[[3]],
+      #                                                        . == 4 ~ sequences[[4]])))) %>%
+      #   # rename to lamda
+      #   rename_with(~ gsub("V", "lambda_", .x))
+      
+    } else if (ms_input == "lambdaFISH") {
+      df <- data %>%
+        ungroup() %>%
+        distinct(ms = .[[rlang::as_name(enquo(ms_id))]])
+      df <-
+        left_join(df, .available_multiplex_barcodes, by = c("ms" = "id")) %>%
+        rename(ms_lambdaFISH_key = barcode)
+      
+      # Add the target street sequence
+      df$ms_num <- .available_os_barcodes[1:nrow(df)]
+      df$ms_street <- .streets[df$ms_num,]$streets
+      # Add the target toe sequence
+      df$ms_toe <- .toes[df$ms_num,]$toes
+      .available_os_barcodes <-
+        .available_os_barcodes[-which(.available_os_barcodes %in% df$ms_num)]
+      # Add another column for the toe sequence
+      
+      
+      # Add same FWD amplification primer to lambdaFISH
+      df$ms_FWD_primer_num_lambdaFISH <- .available_os_barcodes[1]
+      df$ms_FWD_primer_lambdaFISH <- .streets[df$ms_FWD_primer_num_lambdaFISH, ]$streets
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df$ms_FWD_primer_num_lambdaFISH)]
+      
+      # Determine the number of REV primers based on the first element of ms_lambdaFISH_key
+      num_rev_primers <- nchar(df$ms_lambdaFISH_key[1])
+      
+      # Update .available_os_barcodes to get the REV primers
+      ms_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
+      
+      # Create new columns for each REV primer in df
+      for (i in seq_len(num_rev_primers)) {
+        # Get the REV primer number and primer
+        ms_lambdaFISH_REV_primer_num <- ms_lambdaFISH_REV_primer_nums[i]
+        ms_lambdaFISH_REV_primer <- .streets[ms_lambdaFISH_REV_primer_num, ]$streets
+        
+        # Add the new columns to df
+        df <- df %>%
+          mutate(!!paste0("ms_REV_primer_num_lambdaFISH", i) := ms_lambdaFISH_REV_primer_num,
+                 !!paste0("ms_REV_primer_lambdaFISH", i) := ms_lambdaFISH_REV_primer)
+      }
+      # Update .available_os_barcodes
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% ms_lambdaFISH_REV_primer_nums)]
+      
+      # Add another column for the toe reverse primer
+      df$ms_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
+      df$ms_REV_primer_lambdaFISHtoe <- .streets[df$ms_REV_primer_num_lambdaFISHtoe, ]$streets
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df$ms_REV_primer_num_lambdaFISHtoe)]
+      
+
+      # Create new columns for each lambda seq in df
+      df <- df %>% 
+        bind_cols(., as.data.frame(do.call(rbind, strsplit(as.character(df$ms_lambdaFISH_key), ""))) %>%
+                    mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_lambda_bits$Sequence[[1]],
+                                                             . == 2 ~ input_lambda_bits$Sequence[[2]],
+                                                             . == 3 ~ input_lambda_bits$Sequence[[3]],
+                                                             . == 4 ~ input_lambda_bits$Sequence[[4]],
+                                                             .default = "")))
+        ) %>%
+        #rename columns containing V to lambda_seq
+        rename_with(~ str_replace(., "V", "ms_sec_lambdaFISH"), starts_with("V"))
+      
+
+    }
+    
+    if (str_detect(ms_id, "uni")) {
       #names(df) <- paste0("uni_", names(df))
-      names(df) <- gsub("ms", "uni_ms",names(df), fixed = TRUE)
+      names(df) <- gsub("ms", "uni_ms", names(df), fixed = TRUE)
       # df <- df %>%
       #   rename_with(~gsub("ms", "uni_ms",.x, fixed = TRUE))
-    } else if(str_detect(ms_id, "1")){
+    } else if (str_detect(ms_id, "1")) {
       #names(df) <- paste0(names(df), "1")
-      names(df) <- gsub("ms", "ms1",names(df), fixed = TRUE)
+      names(df) <- gsub("ms", "ms1", names(df), fixed = TRUE)
       # df <- df %>%
       #   rename_with(~gsub("ms", "ms1",.x, fixed = TRUE))
-    } else if(str_detect(ms_id, "2")){
+    } else if (str_detect(ms_id, "2")) {
       #names(df) <- paste0(names(df), "2")
-      names(df) <- gsub("ms", "ms2",names(df), fixed = TRUE)
+      names(df) <- gsub("ms", "ms2", names(df), fixed = TRUE)
       # df <- df %>%
       #   rename_with(~gsub("ms", "ms2",.x, fixed = TRUE))
     }
-
+    
+    ###############################
     # ONLY BS needs to be appended
+    ###############################
   } else if (is.null(ms_input) && !is.null(bs_input)) {
     if (bs_input == "toe_seq_im" | bs_input == "seq_im") {
       df <- data %>%
@@ -203,37 +841,119 @@ create_pairs <- function(data = comb_ops(), ms_input = input$append_streets_uni_
         distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
       #rename_with(~gsub({{ ms_id }}, "ms", .x, fixed = TRUE))
       df$bs_num <- .available_os_barcodes[1:nrow(df)]
-      df$bs_street <- .streets[df$bs_num,]$streets
-      df$bs_toe <- .toes[df$bs_num,]$toes
-      .available_os_barcodes <- .available_os_barcodes[-df$bs_num]
+      df$bs_street <- ifelse(bs_rc, rc(.streets[df$bs_num,]$streets), .streets[df$bs_num,]$streets)
+      df$bs_toe <- ifelse(bs_rc, rc(.toes[df$bs_num, ]$toes),.toes[df$bs_num, ]$toes)
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in%df$bs_num)]
+      
     } else if (bs_input == "ofq") {
       df <- data %>%
         ungroup() %>%
         distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
-      df$bs_ofq_key <- 1:nrow(df)
-      df$bs_ofq_seq_primer <- .available_os_barcodes[1]
+      # df$bs_ofq_key <- .available_multiplex_barcodes$barcode[1:nrow(df)]
+      df <-
+        left_join(df, .available_multiplex_barcodes, by = c("bs" = "id")) %>%
+        rename(bs_ofq_key = barcode)
+      df$bs_ofq_seq_primer_num <- .available_os_barcodes[1]
+      df$bs_ofq_seq_primer <-
+        .streets[df$bs_ofq_seq_primer_num, ]$streets
       .available_os_barcodes <-
-        .available_os_barcodes[-df$bs_ofq_seq_primer]
+        .available_os_barcodes[-which(.available_os_barcodes %in% df$bs_ofq_seq_primer_num)]
+      
+      
+      # add OFQ barcode sequence
+      df$bs_ofq_barcode <- as.data.frame(do.call(rbind, strsplit(as.character(df$bs_ofq_key), ""))) %>% 
+        mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_ofq_bits$Sequence[[1]],
+                                                 . == 2 ~ input_ofq_bits$Sequence[[2]],
+                                                 . == 3 ~ input_ofq_bits$Sequence[[3]],
+                                                 . == 4 ~ input_ofq_bits$Sequence[[4]],
+                                                 .default = ""))) %>%
+        # bind all columns in one
+        unite("ofq_barcode_seq", starts_with("V"), sep = "") %>%
+        pull(ofq_barcode_seq)
+      
+    } else if (bs_input == "lambdaFISH") {
+      df <- data %>%
+        ungroup() %>%
+        distinct(bs = .[[rlang::as_name(enquo(bs_id))]])
+      df <-
+        left_join(df, .available_multiplex_barcodes, by = c("bs" = "id")) %>%
+        rename(bs_lambdaFISH_key = barcode)
+      
+      # Add the target street sequence
+      df$bs_num <- .available_os_barcodes[1:nrow(df)]
+      df$bs_street <- .streets[df$bs_num,]$streets
+      # Add the target toe sequence
+      df$bs_toe <- .toes[df$bs_num,]$toes
+      .available_os_barcodes <-
+        .available_os_barcodes[-which(.available_os_barcodes %in% df$bs_num)]
+      # Add another column for the toe sequence
+      
+      
+      # Add same FWD amplification primer to lambdaFISH
+      df$bs_FWD_primer_num_lambdaFISH <- .available_os_barcodes[1]
+      df$bs_FWD_primer_lambdaFISH <- .streets[df$bs_FWD_primer_num_lambdaFISH, ]$streets
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df$bs_FWD_primer_num_lambdaFISH)]
+      
+      # Determine the number of REV primers based on the first element of bs_lambdaFISH_key
+      num_rev_primers <- nchar(df$bs_lambdaFISH_key[1])
+      
+      # Update .available_os_barcodes to get the REV primers
+      bs_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
+      
+      # Create new columns for each REV primer in df
+      for (i in seq_len(num_rev_primers)) {
+        # Get the REV primer number and primer
+        bs_lambdaFISH_REV_primer_num <- bs_lambdaFISH_REV_primer_nums[i]
+        bs_lambdaFISH_REV_primer <- .streets[bs_lambdaFISH_REV_primer_num, ]$streets
+        
+        # Add the new columns to df
+        df <- df %>%
+          mutate(!!paste0("bs_REV_primer_num_lambdaFISH", i) := bs_lambdaFISH_REV_primer_num,
+                 !!paste0("bs_REV_primer_lambdaFISH", i) := bs_lambdaFISH_REV_primer)
+      }
+      # Update .available_os_barcodes
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% bs_lambdaFISH_REV_primer_nums)]
+      
+      # Add another column for the toe reverse primer
+      df$bs_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
+      df$bs_REV_primer_lambdaFISHtoe <- .streets[df$bs_REV_primer_num_lambdaFISHtoe, ]$streets
+      .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df$bs_REV_primer_num_lambdaFISHtoe)]
+      
+      
+      # Create new columns for each lambda seq in df
+      df <- df %>% 
+        bind_cols(., as.data.frame(do.call(rbind, strsplit(as.character(df$bs_lambdaFISH_key), ""))) %>%
+                    mutate(across(starts_with("V"), ~ case_when(. == 1 ~ input_lambda_bits$Sequence[[1]],
+                                                             . == 2 ~ input_lambda_bits$Sequence[[2]],
+                                                             . == 3 ~ input_lambda_bits$Sequence[[3]],
+                                                             . == 4 ~ input_lambda_bits$Sequence[[4]],
+                                                             .default = "")))
+        ) %>%
+        #rename columns containing V to lambda_seq
+        rename_with(~ str_replace(., "V", "bs_sec_lambdaFISH"), starts_with("V"))
+      
+      
     }
-
-    if(str_detect(bs_id, "uni")){
-      names(df) <- gsub("bs", "uni_bs",names(df), fixed = TRUE)
+    
+    if (str_detect(bs_id, "uni")) {
+      names(df) <- gsub("bs", "uni_bs", names(df), fixed = TRUE)
       # df <- df %>%
       #   rename_with(~gsub("bs", "uni_bs",.x, fixed = TRUE))
-    } else if(str_detect(bs_id, "1")){
-      names(df) <- gsub("bs", "bs1",names(df), fixed = TRUE)
+    } else if (str_detect(bs_id, "1")) {
+      names(df) <- gsub("bs", "bs1", names(df), fixed = TRUE)
       # df <- df %>%
       #   rename_with(~gsub("bs", "bs1",.x, fixed = TRUE))
-    } else if(str_detect(bs_id, "2")){
-      names(df) <- gsub("bs", "bs2",names(df), fixed = TRUE)
+    } else if (str_detect(bs_id, "2")) {
+      names(df) <- gsub("bs", "bs2", names(df), fixed = TRUE)
       # df <- df %>%
       #   rename_with(~gsub("bs", "bs2",.x, fixed = TRUE))
     }
-
+    
   }
-
   
-  created_pairs_list <- list("available_barcodes" = .available_os_barcodes, "df" = df)
+  
+  created_pairs_list <-
+    list("available_barcodes" = .available_os_barcodes, "df" = df)
   return(created_pairs_list)
 }
   
@@ -308,13 +1028,86 @@ generate_oligoFISSEQ_barcodes <- function(cycles = 3, sequences = c("GGTCT","TGG
   score <- score %>% 
     mutate(freq_pattern = str_count(.$all,pattern_allowed))
   score$zeros <- rowSums(score == 0)
-  barcodes_split <- lll[score$freq_pattern < different_last,]
-  #barcodes_split <- mmm[score$freq_pattern < (different_last-1),]
+  # barcodes_split <- lll[score$freq_pattern < different_last,]
+  barcodes_split <- mmm[score$freq_pattern < (different_last-1),]
   #names(barcodes)
   barcodes <- unite(barcodes_split, sequence, 1:cycles, sep="")
   barcodes$code <- row.names(barcodes)
   barcodes
 }
+
+# Ensure that the stringdist package is installed
+if (!requireNamespace("stringdist", quietly = TRUE)) {
+  install.packages("stringdist")
+}
+
+
+library(stringdist)
+
+generate_multiplex_barcodes <- function(cycles = 3, sequences = c("A", "G", "C", "T"), min_hamming_distance = floor(cycles / 2)) {
+  
+  # Map sequences to a number
+  sequence_map <- setNames(seq_along(sequences), sequences)
+  
+  # Generate all permutations using numbers
+  all_permutations <- expand.grid(rep(list(sequence_map), cycles))
+  all_permutations <- apply(all_permutations, 1, function(x) paste0(x, collapse = ""))
+  
+  # Adjust the repeat limit for small cycles
+  max_repeat_limit <- ifelse(cycles <= 4, 1, ceiling(0.2 * cycles))
+  
+  # Function to check for too many repeats
+  has_too_many_repeats <- function(seq) {
+    seq_numbers <- as.integer(strsplit(seq, "")[[1]])
+    any(rle(seq_numbers)$lengths > max_repeat_limit)
+  }
+  
+  # Filter out sequences with too many repeats
+  filtered_permutations <- Filter(function(seq) !has_too_many_repeats(seq), all_permutations)
+  
+  # Function to calculate Hamming distance
+  is_valid_hamming_distance <- function(seq, sequences, min_distance) {
+    # Count how many sequences meet the Hamming distance criterion
+    valid_count <- sum(sapply(sequences, function(other_seq) {
+      stringdist::stringdist(seq, other_seq, method = "hamming") >= min_distance
+    }))
+    # Return TRUE if a sufficient number of sequences meet the criterion
+    return(valid_count >= length(sequences) * 0.5)  # Example: at least 50% of sequences meet the criterion
+  }
+  
+  # Filter permutations based on Hamming distance
+  valid_sequences <- Filter(function(seq) is_valid_hamming_distance(seq, filtered_permutations, min_hamming_distance), filtered_permutations)
+  
+  return(valid_sequences)
+}
+
+
+#########################################################
+# precompute the multiplex barcodes for a number of cycles and save them to accelerate the appending process for OFQ and lambdaFISH
+#########################################################
+# for (cycles in 7:10) {
+#   mpx_data <- generate_multiplex_barcodes(cycles = cycles, sequences = c("GGTCT","TGGTC","AGTCA","CGCTC"), min_hamming_distance = ceiling(cycles/2))
+#   df <- tibble(mpx = mpx_data)
+#   # file path
+#   file_path <- paste0("/Users/alioutas/Google Drive/My Drive/GitHub/OASIS/OASIS_app/mpx/mpx_", cycles, ".csv")
+#   # Write csv
+#   write.csv(df, file_path, row.names = FALSE)
+# }
+
+
+
+
+
+# START TO DELETE
+# Example usage
+# sequences <- c("AGTC", "GAGT", "CTGC", "TAHAH")
+# result <- generate_multiplex_barcodes(cycles = 6, sequences, min_hamming_distance = 3)
+# sort(result)
+# length(result)
+
+# END TO DELETE
+
+
 
 
 # append_ms_OS_bs_OS <- function(ms = ms, bs = bs, avoid_until = avoid_until, available_barcodes = available_barcodes, matched_streets = matched_streets, mode = c("seq_im", "toe_seq_im")){
@@ -381,7 +1174,8 @@ make_summary <- function(df) {
       dom = 't',
       scrollX = TRUE,
       fixedColumns = TRUE,
-      scrollX = TRUE))
+      scrollX = TRUE)
+    )
 }
 
 
@@ -411,7 +1205,7 @@ bedtools_merge_test <- function(x){
 
 
 
-intersect_coordinates <- function(y, x, correct_coor = T){
+intersect_coordinates <- function(y, x, correct_coor = T, .options = '-wa -wb'){
   require(tidyverse)
   require(RBedtools)
   
@@ -431,13 +1225,46 @@ intersect_coordinates <- function(y, x, correct_coor = T){
   #   select(-order)
   
   x %>% from_data_frame %>% 
-    RBedtools('intersect',options = '-wa -wb', a=., b=from_data_frame(y)) %>% to_data_frame
+    RBedtools('intersect',options = .options, a=., b=from_data_frame(y)) %>% to_data_frame
   
   #RBedtools(tool = 'intersect',options = '-wa -wb', a=from_data_frame(x), b=from_data_frame(y)) %>% to_data_frame
   
 } 
 
 
+balance_density <- function(data, id_column, n_probes) {
+  all_balanced_filtered <- data %>% 
+    drop_na() %>% 
+    arrange(chr, start) %>% 
+    group_by(chr) %>% 
+    group_modify(~ { 
+      .x %>% 
+        mutate(distance = start - lag(end)) 
+    }) %>% 
+    filter(between(distance, 0, 1000000)) %>% 
+    ungroup() %>% 
+    group_by(chr, !!sym(id_column)) %>% 
+    add_count(name = "total") %>%
+    group_split() %>% 
+    map(function(x) {
+      if (nrow(x) <= n_probes) {
+        res <- rbind(x, sample_n(size = n_probes - nrow(x), replace = T, x))
+      } else { 
+        res <- sample_n(size = n_probes, weight = distance, replace = F, x)
+      }
+      return(res)
+    }) %>%
+    bind_rows() %>% 
+    arrange(chr, start) %>% 
+    group_by(chr) %>% 
+    group_modify(~ { 
+      .x %>% 
+        mutate(distance = start - lag(end)) 
+    }) %>% 
+    ungroup()
+  
+  return(all_balanced_filtered)
+}
 
 
 # ref_genome <- fread("~/Google Drive/HMS/general_lab/Vutara_related/scripts/appending/appending/appending/genome_coordinates/hg38.txt")

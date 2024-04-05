@@ -1,7 +1,0 @@
-chr	start	end	cent_start	cent_end
-chrI	1	15072434	0	0
-chrII	1	15279421	0	0
-chrIII	1	13783801	0	0
-chrIV	1	17493829	0	0
-chrV	1	20924180	0	0
-chrX	1	17718942	0	0
