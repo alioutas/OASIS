@@ -1202,6 +1202,7 @@ ui <- fluidPage(
             br(),
             shinyjs::hidden(
               div(id = "scratch",
+               tags$a(href="https://revcomp.streamlit.app/", "Reverse Complement online tool (DNA / RNA)"),
                h5("Mine Oligopaints from scratch:"),
                tags$a(href="https://github.com/beliveau-lab/OligoMiner", "OligoMiner."),
                br(),
