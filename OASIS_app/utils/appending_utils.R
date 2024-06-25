@@ -1225,7 +1225,7 @@ intersect_coordinates <- function(y, x, correct_coor = T, .options = '-wa -wb'){
   #   select(-order)
   
   x %>% from_data_frame %>% 
-    RBedtools('intersect',options = .options, a=., b=from_data_frame(y)) %>% to_data_frame
+    RBedtools('intersect',options = .options, a=., b=RBedtools(tool = 'sort', i=from_data_frame(y))) %>% to_data_frame #from_data_frame(y)
   
   #RBedtools(tool = 'intersect',options = '-wa -wb', a=from_data_frame(x), b=from_data_frame(y)) %>% to_data_frame
   

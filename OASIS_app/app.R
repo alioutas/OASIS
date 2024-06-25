@@ -105,21 +105,26 @@ ui <- fluidPage(
   #   ")),
   # Application title
   # img(src='~/srv/shiny-server/www/oasis_logo.png', align = "left", height = "15%", width = "15%"),
-  img(src="oasis_logo.png", align = "left", height = "180px", width = "180px"),
+  img(src="oasis_logo.png", align = "left", height = "180px", width = "180px", style = "margin-left: 15px; margin-right: 15px; margin-top: 15px; margin-bottom: 15px;"),
   titlePanel("Oligopaints Appending in 3 Simple Interactive Steps"),
   #h1("OASIS"),
   helpText("This is an application designed to interactively append barcode DNA sequences to Oligopaints.",
            "\n The barcodes that can be appended are: OligoSTORM and OligoFISSEQ.", #, and lambdaFISH
            h5("Contact: Antonios Lioutas","(antonios_lioutas <at> hms.harvard.edu)"), 
-           tags$a(href="www.transvection.org", target = "_blank", "Ting Wu lab"),
-           h5("\n"),
-           tags$a(href = "https://youtu.be/-OBmgxL7BNo", target = "_blank", "Video tutorial")
+           div(
+             style = "display: inline-block; margin-right: 20px;", # Styling for inline display and some space between links
+             tags$a(href="https://www.transvection.org", target="_blank", "Ting Wu lab")
+           ),
+           div(
+             style = "display: inline-block;", # Styling for inline display
+             tags$a(href="https://youtu.be/-OBmgxL7BNo", target="_blank", "Video tutorial")
+           )
            ),
   # h6(icon("fa fa-circle"), "To start from scratch, refresh the webpage."),
   # helpText("After any change press the corresponding button to update the results."),
   h6(icon("fa fa-circle"), "To start from scratch, refresh the webpage.", icon("fa fa-hand-point-right"), "After any modification press the corresponding button to apply the changes."),
   add_busy_bar(color = "#F1C232", height ="12px"),
-  navbarPage(HTML(paste0("v0.0.3 ", tags$b("OASIS"))),  
+  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.5</span>')),  #, tags$b("OASIS")
              
              
              ########################################################################################################
@@ -1215,7 +1220,8 @@ ui <- fluidPage(
                tags$a(href="https://rdcu.be/c5yF9", "Nguyen H, Chattoraj S, Castillo D, et. al., Nature Methods (2020)."),
                br(),
                hr(),
-               h5("For ever grateful to Huy Nguyen, Jumana Alhaj Abed and the Wu lab for their feedback on OASIS development.")
+               h5("For ever grateful to Huy Nguyen, Jumana Alhaj Abed and the Wu lab for their feedback on OASIS development."),
+               h5("Logo designed by Hasam.")
                ) # close div 
             ), # close hidden
                br(),
@@ -1513,17 +1519,23 @@ server <- function(input, output, session) {
     # get all available bedfiles
     if(input$op_select == "new"){
       bed_list <- list(uni_ms = if(!is.null(input$UNI_ms)) tibble(fread(input$UNI_ms$datapath[1]) %>% select(1:4)%>% 
-                                                                    `colnames<-`(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms"))),
+                                                                    `colnames<-`(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms"))) %>% 
+                                                                      arrange(chr_uni_ms, start_uni_ms) else NULL,
                        uni_bs = if(!is.null(input$UNI_bs)) tibble(fread(input$UNI_bs$datapath[1]) %>% select(1:4)%>% 
-                                                                    `colnames<-`(c("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs"))),
+                                                                    `colnames<-`(c("chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs"))) %>% 
+                                                                      arrange(chr_uni_bs, start_uni_bs) else NULL,
                        ms1    = if(!is.null(input$MS1)) tibble(fread(input$MS1$datapath[1]) %>% select(1:4)%>% 
-                                                                 `colnames<-`(c("chr_ms1","start_ms1", "end_ms1", "id_ms1"))),
+                                                                 `colnames<-`(c("chr_ms1","start_ms1", "end_ms1", "id_ms1"))) %>% 
+                                                                  arrange(chr_ms1, start_ms1) else NULL,
                        ms2    = if(!is.null(input$MS2)) tibble(fread(input$MS2$datapath[1]) %>% select(1:4)%>% 
-                                                                 `colnames<-`(c("chr_ms2","start_ms2", "end_ms2", "id_ms2"))),
+                                                                 `colnames<-`(c("chr_ms2","start_ms2", "end_ms2", "id_ms2"))) %>% 
+                                                                  arrange(chr_ms2, start_ms2) else NULL,
                        bs1    = if(!is.null(input$BS1)) tibble(fread(input$BS1$datapath[1]) %>% select(1:4)%>% 
-                                                                 `colnames<-`(c("chr_bs1","start_bs1", "end_bs1", "id_bs1"))),
+                                                                 `colnames<-`(c("chr_bs1","start_bs1", "end_bs1", "id_bs1"))) %>% 
+                                                                  arrange(chr_bs1, start_bs1) else NULL,
                        bs2    = if(!is.null(input$BS2)) tibble(fread(input$BS2$datapath[1]) %>% select(1:4)%>% 
-                                                                 `colnames<-`(c("chr_bs2","start_bs2", "end_bs2", "id_bs2")))
+                                                                 `colnames<-`(c("chr_bs2","start_bs2", "end_bs2", "id_bs2"))) %>% 
+                                                                  arrange(chr_bs2, start_bs2) else NULL
       ) %>%
         compact() # removes NULL elements in the list
     } else if(input$op_select == "intersected"){
@@ -4275,7 +4287,8 @@ server <- function(input, output, session) {
       NULL
     }) %>% 
       compact()
-    )
+    ) %>% 
+      compact()
   })
   
   
@@ -4638,8 +4651,8 @@ observeEvent(input$reset_lambda, {
     )
     
     # Access the current value of the reactive expression bridges
-    params <- reactiveValues(bridges = NULL,
-                             amp_primers = NULL)
+    # params <- reactiveValues(bridges = NULL,
+    #                          amp_primers = NULL)
 
     # Set up parameters to pass to Rmd document
     params <- list(bridges = bridges(),
@@ -4677,7 +4690,7 @@ observeEvent(input$reset_lambda, {
       temp_files <- list()
       
       if ("ops_only" %in% input$download_files) {
-        ops_file <- file.path(temp_dir, "comb_ops.csv")
+        ops_file <- file.path(temp_dir, "intersected_oligopaints_NOappending.csv")
         if(input$filter_ops){
           comb_ops <- comb_ops_f() %>% 
             select(any_of(c("chr", "start", "end", "sequence", "Tm", "on_target", "off_target", "is_repeat", "prob", "max_kmer", "probe_strand")))
@@ -4690,25 +4703,28 @@ observeEvent(input$reset_lambda, {
       }
       
       if ("report" %in% input$download_files) {
-        tempReport <- file.path(temp_dir, "OASIS_report_2.Rmd")
+        tempReport <- file.path(tempdir(), "OASIS_report.Rmd")
         file.copy('OASIS_report_2.Rmd', tempReport, overwrite = TRUE)
         
-        # Generate the report
         rendered_report <- rmarkdown::render(
           tempReport,
           params = list(
-            bridges = bridges(),  # Assuming bridges() is a reactive expression
-            amp_primers = amp_primers()
+            bridges = bridges(),
+            amp_primers = amp_primers(),
+            valuebox_data = valuebox_data(),
+            valuebox_data_dist = valuebox_data_dist()
           ),
           envir = globalenv()
         )
         
+        # Assuming the output from render is the path to the HTML file
         temp_files <- c(temp_files, rendered_report)
       }
       
-      if ("oligopaints_order" %in% input$download_files) {
-        oligo_file <- file.path(temp_dir, "appended_Oligopaint.csv")
-        write.csv(appended_oligopaints()[["appended_Oligopaint"]], oligo_file, row.names = FALSE)
+      
+      if ("oligopaints_order" %in% input$download_files && is.null(lambda_bridges_lib())) {
+        oligo_file <- file.path(temp_dir, "OASIS_OPs_order.csv")
+        write.csv(appended_oligopaints()["appended_oligopaint"], oligo_file, row.names = FALSE, col.names = FALSE)
         temp_files <- c(temp_files, oligo_file)
       }
       
@@ -4729,7 +4745,7 @@ observeEvent(input$reset_lambda, {
       if ("bridges_download" %in% input$download_files) {
         for (name in names(bridges)) {
           bridge_file <- file.path(temp_dir, paste0(name, ".csv"))
-          write.csv(bridges[[name]], bridge_file, row.names = FALSE)
+          write.csv(bridges()[[name]], bridge_file, row.names = FALSE)
           temp_files <- c(temp_files, bridge_file)
         }
       }

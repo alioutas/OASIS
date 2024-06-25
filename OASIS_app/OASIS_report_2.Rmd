@@ -38,7 +38,7 @@ bridges_colnames <- c(unlist(sapply(params$bridges, colnames)))
 ### Oligopaints library appended sequences overview
 
 #### 1. Oligopaints Library
-* We typically order the library from Twist (www.twistbioscience.com) use the file: OASIS_order.txt
+* We typically order the library from Twist (www.twistbioscience.com) use the file: OASIS_OPs_order.txt
 
 Oligopaints melting temperatures 
 ```{r temp_box, echo = F, warning=F, results='asis'}
@@ -148,14 +148,25 @@ Amplification primers are usually ordered from IDT.
 
 ```{r primers, echo = F, warning=F, results='asis'} 
 
+
 if(all(c("FWD_primers_out", "REV_primers_out") %in% names(params$amp_primers))) {
-  cat("\n\n#### Universal Oligopaints library amplification primers \n\n")
+  cat("\n\n#### Universal Oligopaints library amplification Forward and Reverse primers \n\n")
   cat("\n")
   
   print(knitr::kable(params$amp_primers$FWD_primers_out))
   print(knitr::kable(params$amp_primers$REV_primers_out))
+} else if ("FWD_primers_out" %in% names(params$amp_primers) && !("REV_primers_out" %in% names(params$amp_primers))) {
+  cat("<span style='color: red;'>**Warning: **You did not choose any universal Reverse primers. You will not be able to amplify this library by PCR.</span>\n\n")
+  cat("\n\n#### Universal Oligopaints library Forward primers \n\n")
+  print(knitr::kable(params$amp_primers$FWD_primers_out))
+
+} else if (!("FWD_primers_out" %in% names(params$amp_primers)) && "REV_primers_out" %in% names(params$amp_primers)) {
+  cat("<span style='color: red;'>**Warning: **You did not choose any universal Forward primers. You will not be able to amplify this library by PCR.</span>\n\n")
+  cat("\n\n#### Universal Oligopaints library Reverse primers \n\n")
+  print(knitr::kable(params$amp_primers$REV_primers_out))
+
 } else {
-  cat("Warning: **You did not choose any Universal sequencing. You will not be able to amplify this library by PCR.**")
+  cat("<span style='color: red;'>**Warning: **You did not choose any Universal primers. You will not be able to amplify this library by PCR.</span>")
 }
 
 ```
