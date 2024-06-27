@@ -1221,7 +1221,7 @@ ui <- fluidPage(
                br(),
                hr(),
                h5("For ever grateful to Huy Nguyen, Jumana Alhaj Abed and the Wu lab for their feedback on OASIS development."),
-               h5("Logo designed by Hasam.")
+               h5("Logo designed by Hazam Jara.")
                ) # close div 
             ), # close hidden
                br(),
@@ -4191,12 +4191,12 @@ server <- function(input, output, session) {
   bridges <- reactive({
     
     # make a list if the appended dataframes exist only
-    list(uni_ms_appended = if (!is.null(input$append_streets_uni_ms)) uni_ms_appended_data() else NULL,
-         uni_bs_appended = if (!is.null(input$append_streets_uni_bs)) uni_bs_appended_data() else NULL,
-         ms1_appended = if (!is.null(input$append_streets_ms1)) ms1_appended_data() else NULL,
-         ms2_appended = if (!is.null(input$append_streets_ms2)) ms2_appended_data() else NULL,
-         bs1_appended = if (!is.null(input$append_streets_bs1)) bs1_appended_data() else NULL,
-         bs2_appended = if (!is.null(input$append_streets_bs2)) bs2_appended_data() else NULL) %>% 
+    list(uni_ms_bridges_toes = if (!is.null(input$append_streets_uni_ms)) uni_ms_appended_data() else NULL,
+         uni_bs_bridges_toes = if (!is.null(input$append_streets_uni_bs)) uni_bs_appended_data() else NULL,
+         ms1_bridges_toes = if (!is.null(input$append_streets_ms1)) ms1_appended_data() else NULL,
+         ms2_bridges_toes = if (!is.null(input$append_streets_ms2)) ms2_appended_data() else NULL,
+         bs1_bridges_toes = if (!is.null(input$append_streets_bs1)) bs1_appended_data() else NULL,
+         bs2_bridges_toes = if (!is.null(input$append_streets_bs2)) bs2_appended_data() else NULL) %>% 
       compact()
   })
   
@@ -4743,7 +4743,7 @@ observeEvent(input$reset_lambda, {
       }
       
       if ("bridges_download" %in% input$download_files) {
-        for (name in names(bridges)) {
+        for (name in names(bridges())) {
           bridge_file <- file.path(temp_dir, paste0(name, ".csv"))
           write.csv(bridges()[[name]], bridge_file, row.names = FALSE)
           temp_files <- c(temp_files, bridge_file)
