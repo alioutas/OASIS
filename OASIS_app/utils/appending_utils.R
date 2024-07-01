@@ -178,7 +178,7 @@ create_pairs <- function(data = comb_ops(),
                          input_lambda_bits = input_sec_lambda_reactive, 
                          bs_rc = FALSE) {
   #, .previous_df = NULL
-  require(tidyverse)
+  # require(tidyverse)
 
   #transform id to character from list
   .available_multiplex_barcodes$id <- as.character(.available_multiplex_barcodes$id)
@@ -199,7 +199,6 @@ create_pairs <- function(data = comb_ops(),
       
       # df contains two columns ms and bs each one containing the respective unique ids of the regions of interest
       # NAs are added to the following columns, these NAs will be replaced by matched os pairs
-      
       
       
       for (i in 1:nrow(df)) {
@@ -242,10 +241,20 @@ create_pairs <- function(data = comb_ops(),
           }
         }
       }
+      
+      # add the ms street and toe 
       df$ms_street <- .streets[df$ms_num,]$streets
       df$ms_toe <- .toes[df$ms_num,]$toes
-      df$bs_street <- ifelse(bs_rc, rc(.streets[df$bs_num,]$streets), .streets[df$bs_num,]$streets)
-      df$bs_toe <- ifelse(bs_rc, rc(.toes[df$bs_num,]$toes),.toes[df$bs_num,]$toes)
+      
+      # add the bs street and toe based on user defined complementarity
+      if (bs_rc) {
+        df$bs_street <- rc(.streets[df$bs_num,]$streets)
+        df$bs_toe <- rc(.toes[df$bs_num,]$toes)
+      } else {
+        df$bs_street <- .streets[df$bs_num,]$streets
+        df$bs_toe <- .toes[df$bs_num,]$toes
+      }
+
       
     } else if ((ms_input == "toe_seq_im" | ms_input == "seq_im") &&
                (bs_input == "ofq" | bs_input == "lambdaFISH")) {
