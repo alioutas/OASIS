@@ -1951,7 +1951,7 @@ server <- function(input, output, session) {
   # Creates statistics from elsewhere intersected Universal Mainstreets
   
   intersected_universals_ms <- print("")
-  intersected_universals_ms <-eventReactive(listen_source_intersected(),{
+  intersected_universals_ms <- eventReactive(listen_source_intersected(),{
     req(input$intersected_UNI_ms, input$op_intersected)
     validate(
       need(input$intersected_UNI_ms != "", " "),
@@ -1976,24 +1976,6 @@ server <- function(input, output, session) {
       NULL
     }
   }, ignoreNULL = FALSE)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   # observeEvent(input$UNI_ms, {
@@ -3502,6 +3484,7 @@ server <- function(input, output, session) {
     # } else {
     #   show("barcode_error_ms2")
     # }
+    
   })  
   
   
@@ -3601,8 +3584,6 @@ server <- function(input, output, session) {
   
   
   ### Prepare sequential OligoSTORM barcodes
-  
-  
   ### avoid numbers of OligoSTORM barcodes
   observeEvent(input$organism, {
     

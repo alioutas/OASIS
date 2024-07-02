@@ -1,9 +1,11 @@
+# Create all necessary lists to be chosen by the user
 choices_append <- list(
   "Sequential OligoSTORM" = "toe_seq_im",
   "OligoSTORM" = "seq_im",
   "OligoFISSEQ" = "ofq"#,
   #"lambdaFISH" = "lambdaFISH"
 )
+
 # default lambda sequences
 default_lambda <- data.frame(
   bitName = c("lambda1", 
@@ -157,8 +159,10 @@ default_oligopaints <- data.frame(
   #          )
 )
 
-# T7 sequence
 
+
+
+# T7 sequence
 T7 <- "TAATACGACTCACTATAGGG"
 
 

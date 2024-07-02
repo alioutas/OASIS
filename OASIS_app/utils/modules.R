@@ -108,7 +108,7 @@ appened_opsServer <- function(id,
           ) %>% 
           select(contains("chr") | contains("start") | contains("end") | 
                    any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | 
-                   "secondary" | "secondary_seq" | "street_target_seq" | "bridge_to_order" | "toe_to_order")
+                   "secondary" | "secondary_seq" | "street_target_seq" | contains("num") | "bridge_to_order" | "toe_to_order")
         
         # data_stats <- input_data() %>%
         #   ungroup() %>% 
@@ -137,7 +137,7 @@ appened_opsServer <- function(id,
           mutate(street_target_seq = toe,
                  bridge_to_order = str_c(rc(street),ifelse(append_actsec, rc(input_actsec_seq), "") ,rc(secondary_seq)),
                  toe_to_order = rc(toe)) %>% 
-          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | "secondary" | "secondary_seq" | "street_target_seq" | "bridge_to_order"| "toe_to_order")
+          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | "secondary" | "secondary_seq" | "street_target_seq" | contains("num") | "bridge_to_order"| "toe_to_order")
         
         # data_stats <- input_data() %>%
         #   ungroup() %>% 
