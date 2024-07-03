@@ -24,6 +24,7 @@ appened_opsServer <- function(id,
     
     
     # TODO
+    # fix the new read in of streets (toes and matched streets seem to work well)
     # select the OPs before appending to save as a seperate file
     # make secondary sequences appear at side panel if "toe_seq_im", "seq_im" are selected
     # make 405 appear at side panel if "toe_seq_im", "seq_im" are selected

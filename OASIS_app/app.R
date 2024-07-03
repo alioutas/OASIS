@@ -754,12 +754,13 @@ ui <- fluidPage(
                                     "<strong>What organism you are planning to use the Oligopaints for? Selecting the organism OASIS will make sure barcode sequences are orthogonal to the selected organism.</strong>",
                                     placement = "right"
                                   )),
-                     choices = c(
-                       "Homo sapiens (Human)" = "human",
-                       "Drosophila melanogaster (Fruit fly)" = "drosophila",
-                       "Mus musculus (Mouse)" = "mouse"
-                     ),
-                     selected = "human"
+                     choices = os_street_barcodes$Name,
+                     #   c(
+                     #   "Homo sapiens (Human)" = "human",
+                     #   "Drosophila melanogaster (Fruit fly)" = "drosophila",
+                     #   "Mus musculus (Mouse)" = "mouse"
+                     # ),
+                     selected = "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11"
                    ),
                    hr(),
                    h4("Select your barcodes."),
@@ -3340,22 +3341,30 @@ server <- function(input, output, session) {
   
   
   ### import from google drive toe sequences for OligoSTORM of the selected organism
-  toes <- eventReactive(input$organism, {
-    switch(input$organism,
-           "human" = gsheet2tbl('https://drive.google.com/open?id=1cxeKxa8F3NDK7M856R_dAnWPXlWu8Fda6BwFoHt-whE'),
-           "drosophila" = gsheet2tbl('https://drive.google.com/open?id=1f3D1ysew8yQJteGRzMiMwacbvjqi3aq8jCc1NmPlQyc'),
-           "mouse" = gsheet2tbl('https://drive.google.com/open?id=1u7V7eTMDL_rqc9wT8DR3lTjM77vUs26MkDFSDmD8hN0'))
-  }, ignoreNULL = FALSE,
-  )
+  toes <- reactive({
+    
+    read_csv(os_toes_barcodes[os_toes_barcodes$Name == {input$organism}, 'link'], col_names = "toes")
+    # switch(input$organism,
+    #        # "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = gsheet2tbl('https://drive.google.com/open?id=1cxeKxa8F3NDK7M856R_dAnWPXlWu8Fda6BwFoHt-whE'),
+    #        "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = read_csv(os_toes_barcodes[os_toes_barcodes$Name == {input$organism}, 'link'], col_names = "toes"),
+    #        "dm6" = gsheet2tbl('https://drive.google.com/open?id=1f3D1ysew8yQJteGRzMiMwacbvjqi3aq8jCc1NmPlQyc'),
+    #        "mouse" = gsheet2tbl('https://drive.google.com/open?id=1u7V7eTMDL_rqc9wT8DR3lTjM77vUs26MkDFSDmD8hN0'))
+  }) %>% 
+    bindEvent(input$organism)
   
   
   ### import from google drive street sequences for OligoSTORM of the selected organism
-  streets <- eventReactive(input$organism, {
-    switch(input$organism,
-           "human" = gsheet2tbl('https://drive.google.com/open?id=1tkQkwv90Hfy9FmcP0fotZ3tXTEq4BUDG9yGmq3coQ1Y'),
-           "drosophila" = gsheet2tbl('https://drive.google.com/open?id=1cpQiOmU4yNp2EXkkmUwnErANXY-SzsxodC0BGewaUhs'),
-           "mouse" = gsheet2tbl('https://drive.google.com/open?id=1A9i6sw_j_JmgnRTyJSNgnGfI0M8zZzCAiIh5tKTMQWA'))
-  }, ignoreNULL = FALSE)
+  streets <- reactive({
+    
+    read_csv(os_street_barcodes[os_street_barcodes$Name == input$organism, 'link'], col_names = "streets")
+    # switch(input$organism,
+    #        # "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = gsheet2tbl('https://drive.google.com/open?id=1tkQkwv90Hfy9FmcP0fotZ3tXTEq4BUDG9yGmq3coQ1Y'),
+    #        "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = read_csv(os_street_barcodes[os_street_barcodes$Name == input$organism, 'link'], col_names = "streets"),
+    #        "dm6" = gsheet2tbl('https://drive.google.com/open?id=1cpQiOmU4yNp2EXkkmUwnErANXY-SzsxodC0BGewaUhs'),
+    #        "mouse" = gsheet2tbl('https://drive.google.com/open?id=1A9i6sw_j_JmgnRTyJSNgnGfI0M8zZzCAiIh5tKTMQWA'))
+  }) %>% 
+    bindEvent(input$organism)
+  
   
   ###--- now that streets are imported avoid_until slider updates with the correct number of total streets
   
@@ -3370,12 +3379,16 @@ server <- function(input, output, session) {
   
   ### import from google drive matched street table for OligoSTORM of the selected organism
   
-  matched_streets <- eventReactive(input$organism, {
-    switch(input$organism,
-           "human" = gsheet2tbl('https://drive.google.com/open?id=1Eh9ot2QJk35dw6b941g4Dqo5v-AEcXvltQKM572h7Xo'),
-           "drosophila" = gsheet2tbl('https://drive.google.com/open?id=1pg150tLPiDSln7p1k1laBf-BCCc4ZtsWRIVUgKr8j5k'),
-           "mouse" = gsheet2tbl('https://drive.google.com/open?id=1HsyWTXCx33XeiO-V9-FLEIfVtuo-SsH17lq1oGi38pk'))
-  }, ignoreNULL = FALSE)
+  matched_streets <- reactive({
+    
+    read_csv(os_matched_streets[os_matched_streets$Name == {input$organism}, 'link'], col_names = T)
+    # switch(input$organism,
+    #        # "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = gsheet2tbl('https://drive.google.com/open?id=1Eh9ot2QJk35dw6b941g4Dqo5v-AEcXvltQKM572h7Xo'),
+    #        "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = read_csv(os_matched_streets[os_matched_streets$Name == {input$organism}, 'link'], col_names = T),
+    #        "dm6" = gsheet2tbl('https://drive.google.com/open?id=1pg150tLPiDSln7p1k1laBf-BCCc4ZtsWRIVUgKr8j5k'),
+    #        "mouse" = gsheet2tbl('https://drive.google.com/open?id=1HsyWTXCx33XeiO-V9-FLEIfVtuo-SsH17lq1oGi38pk'))
+  }) %>% 
+    bindEvent(input$organism)
   
   
   

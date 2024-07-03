@@ -159,7 +159,69 @@ default_oligopaints <- data.frame(
   #          )
 )
 
+# select the available barcodes for OS and seqOS
+os_matched_streets <- data.frame(
+  Name = c("3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11", 
+           "dm6",
+           "dmel",
+           "galGal4",
+           "hg38",
+           "hg38 mm10 dm6 galGal4 loxAfr3O imyakon",
+           "loxAfr3",
+           "mm10",
+           "Oimyakon"),
+  link = c("http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_hg38mm10dm6wuhCor1loxafr3ce11_100120.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_dm6.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_dmel_scaffold2.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_galGal4.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_hg38.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_hg38mm10dm6galGal4loxAfr3Oimyakon.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_loxAfr3.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_mm10.csv",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/matched_streets_Oimyakon.csv")
+)
 
+os_street_barcodes <- data.frame(
+  Name = c("3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11", 
+           "dm6",
+           "dmel",
+           "galGal4",
+           "hg38",
+           "hg38 mm10 dm6 galGal4 loxAfr3O imyakon",
+           "loxAfr3",
+           "mm10",
+           "Oimyakon"),
+  link = c("http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_hg38mm10dm6wuhCor1loxafr3ce11_100120.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_dm6.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_dmel_scaffold2.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_galGal4.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_hg38.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_hg38mm10dm6galGal4loxAfr3Oimyakon.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_loxAfr3.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_mm10.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Streets_Oimyakon.txt")
+)
+
+os_toes_barcodes <- data.frame(
+  Name = c("3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11", 
+           "dm6",
+           "dmel",
+           "galGal4",
+           "hg38",
+           "hg38 mm10 dm6 galGal4 loxAfr3O imyakon",
+           "loxAfr3",
+           "mm10",
+           "Oimyakon"),
+  link = c("http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_hg38mm10dm6wuhCor1loxafr3ce11_100120.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_dm6.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_dmel_scaffold2.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_galGal4.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_hg38.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_hg38mm10dm6galGal4loxAfr3Oimyakon.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_loxAfr3.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_mm10.txt",
+           "http://hmsrsc-wulab-data.s3.amazonaws.com/barcodes/Toes_Oimyakon.txt")
+)
 
 
 # T7 sequence
@@ -1372,6 +1434,85 @@ balance_density <- function(data, id_column, n_probes) {
 #                 nudge_x      = 0.3,
 #                 check_overlap = T)
 # }
+
+
+
+# create matched_streets from penalty table of OS barcodes from OligoLEGO (best values <=3)
+
+fill_lower_triangle <- function(mat) {
+  tmat <- t(mat)
+  new <- matrix(NA, nrow = nrow(mat), ncol = ncol(mat))
+  new[upper.tri(new)] <- mat[upper.tri(mat)]
+  new[lower.tri(new)] <- tmat[lower.tri(tmat)]
+  return(new)
+}
+
+
+
+make_matched_streets <- function(penalty_table) {
+  penalty_table <- fill_lower_triangle(penalty_table)
+  n <- nrow(penalty_table)
+  print("Matching streets...")
+  pb <- txtProgressBar(min = 0, max = n, style = 3)
+  
+  matched_streets <- tibble()
+  
+  for (i in 1:n) {
+    cols <- which(penalty_table[i, ] <= 3)
+    if (length(cols) == 0) {
+      next
+    } else {
+      key <- rep(i, length(cols))
+      main <- cols
+      value <- as.numeric(penalty_table[i, cols])
+      matched_streets <- rbind(matched_streets,
+                               tibble(
+                                 main = main,
+                                 key = key,
+                                 value = value
+                               ))
+      setTxtProgressBar(pb, i)
+    }
+  }
+  
+  close(pb)
+  return(matched_streets)
+}
+
+# importing a single penalty table ##########################################
+
+# penalty_table <- fread("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My Drive/2.Areas/HMS/OligoLego/Streets/PenaltyTable_hg38.txt") %>% as_tibble()
+# matched_out <- make_matched_streets(penalty_table)
+
+#importing multiple penalty tables  ##########################################
+
+# create matches street tables for all available penalty tables
+# path <- "/PATH/TO/Streets"
+# pts <- list.files(path = path ,pattern = "Penalty", full.names = T, recursive = T)
+# 
+# for (i in 1:length(pts)) {
+#   
+#   name <- str_replace(str_extract(basename(pts[i]), pattern = "(_.*)\\.txt"), "_(.*)\\.txt", "\\1")
+#   print(name)
+#   penalty_table <- fread(pts[i]) %>% as_tibble()
+#   matched_out <- make_matched_streets(penalty_table)
+#   write_csv(matched_out, paste0(path, "/matched_streets_", name, ".csv"))
+# }
+# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
