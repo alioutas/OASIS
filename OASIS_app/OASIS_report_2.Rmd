@@ -13,6 +13,7 @@ params:
   intersected_ops_OASIS: NA
   valuebox_data: NA
   valuebox_data_dist: NA
+  ops_organism: NA
 ---
 
 
@@ -42,7 +43,6 @@ bridges_colnames <- c(unlist(sapply(params$bridges, colnames)))
 
 Oligopaints melting temperatures 
 ```{r temp_box, echo = F, warning=F, results='asis'}
-
 # Value box information creation
 
     data <- density(params$valuebox_data, na.rm = TRUE)
@@ -186,6 +186,7 @@ Toes will remove the bridge (together with the secondary) if you chose "Sequenti
 
 For more details: Walking along chromosomes as described in Nir, Farabella, Perez Estrada, Ebeling,  et. al. PLOS Genetics (2018).
 
+*Any appended OligoSTORM barcodes come from the OligoLEGO list: * **`r params$ops_organism`**
 
 ```{r bridges, echo = F, results='asis'} 
 print_bridges <- function(name, data) {

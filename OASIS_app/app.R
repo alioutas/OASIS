@@ -1171,7 +1171,7 @@ ui <- fluidPage(
                         ),
                         ###### RIGHT PANEL ######
                         column(9, #h4("OASIS Appended Library Report"),
-                               htmlOutput("OASISReport")#,
+                               htmlOutput("OASISReport")%>% withSpinner()#,
                                # htmlOutput("reportOutput")
                                
                         )
@@ -4632,6 +4632,12 @@ observeEvent(input$reset_lambda, {
   initial_lambda_data(default_lambda) 
 })
 
+# create  input$organism reactive
+ops_organism <- reactive({
+  input$organism
+}) %>% 
+  bindEvent(input$append)
+
 
   
   ########################################################################################################
@@ -4650,12 +4656,11 @@ observeEvent(input$reset_lambda, {
 
     # Set up parameters to pass to Rmd document
     params <- list(bridges = bridges(),
-                   toes = NA,
                    amp_primers = amp_primers(),
-                   order_file = NA,
-                   intersected_ops_OASIS = NA,
                    valuebox_data = valuebox_data(),
-                   valuebox_data_dist = valuebox_data_dist())
+                   valuebox_data_dist = valuebox_data_dist(),
+                   ops_organism =  ops_organism()
+                   )
     
     tempReport <- file.path(tempdir(), "report.Rmd")
     file.copy('OASIS_report_2.Rmd', tempReport, overwrite = TRUE)
@@ -4666,7 +4671,8 @@ observeEvent(input$reset_lambda, {
         bridges = bridges(),
         amp_primers = amp_primers(),
         valuebox_data = valuebox_data(),
-        valuebox_data_dist = valuebox_data_dist()
+        valuebox_data_dist = valuebox_data_dist(),
+        ops_organism = ops_organism()
       ),
       envir = globalenv()#new.env(parent = globalenv())
     )
