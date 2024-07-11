@@ -30,7 +30,7 @@ require(shinyWidgets)
 require(feather)
 # require(bedr)
 # require(tidygenomics)
-require(RBedtools)
+require(RBedtools) #install.packages("devtools") && devtools::install_github("vinay-swamy/RBedtools")
 require(data.table)
 require(bsplus)
 require(bslib)
@@ -3752,8 +3752,6 @@ server <- function(input, output, session) {
     
     
     
-    
-    
     street1_pairs <- create_pairs(data = comb_ops,
                                   ms_input = input$append_streets_ms1,
                                   bs_input = input$append_streets_bs1,
@@ -3808,62 +3806,101 @@ server <- function(input, output, session) {
     
     barcoded_df_out <- Reduce(left_join, pairs_list)
     
-    barcoded_df_out %>%
-      mutate(appended_oligopaint = str_c(
-          ifelse((!is.null(input$append_streets_uni_ms)),
-                 ifelse(
-                   input$append_streets_uni_ms == "seq_im",
-                   str_c(uni_ms_toe, "tt"),
-                   str_c(uni_ms_street, "tt")),""),
-          ifelse(
-            !is.null(input$append_streets_ms2),
-            ifelse(input$append_streets_ms2 == "seq_im",
-                   str_c(ms2_toe, "tt"),
-                   ifelse(input$append_streets_ms2 == "toe_seq_im",
-                          str_c(ms2_street, "tt"),
-                          ifelse(input$append_streets_ms2 == "ofq",
-                                 str_c(ms2_ofq_seq_primer, ms2_ofq_barcode, "ttt"),
-                                 str_c(ms2_street, "tt"))) ),""),
-          ifelse(
-            !is.null(input$append_streets_ms1),
-            ifelse(input$append_streets_ms1 == "seq_im",
-                   str_c(ms1_toe, "tt"),
-                   ifelse(input$append_streets_ms1 == "toe_seq_im",
-                          str_c(ms1_street, "tt"),
-                          ifelse(input$append_streets_ms1 == "ofq",
-                                 str_c(ms1_ofq_seq_primer, ms1_ofq_barcode, "ttt"),
-                                 str_c(ms1_street, "tt"))) ),""),
-          sequence,
-          "tt",
-          ifelse(
-            !is.null(input$append_streets_bs1),
-            ifelse(input$append_streets_bs1 == "seq_im",
-                   str_c(bs1_toe, "tt"),
-                   ifelse(input$append_streets_bs1 == "toe_seq_im",
-                          str_c(bs1_street, "tt"),
-                          ifelse(input$append_streets_bs1 == "ofq",
-                                 str_c(bs1_ofq_seq_primer, bs1_ofq_barcode, "ttt"),
-                                 str_c(bs1_street, "tt"))) ),""),
-          ifelse(
-            !is.null(input$append_streets_bs2),
-            ifelse(input$append_streets_bs2 == "seq_im",
-                   str_c(bs2_toe, "tt"),
-                   ifelse(input$append_streets_bs2 == "toe_seq_im",
-                          str_c(bs2_street, "tt"),
-                          ifelse(input$append_streets_bs2 == "ofq",
-                                 str_c(bs2_ofq_seq_primer, bs2_ofq_barcode, "ttt"),
-                                 str_c(bs2_street, "tt"))) ),""),
-          ifelse((!is.null(input$append_streets_uni_bs)),
-                 ifelse(
-                   input$append_streets_uni_bs == "seq_im",
-                   uni_bs_toe, 
-                   uni_bs_street),"")
-      )
-      ) %>% 
-    mutate(appended_oligopaint = str_pad(appended_oligopaint, round(max(str_count(appended_oligopaint))), side = "right", pad = "t"))
+    
+    # Step 1: Create the appended_oligopaint column using base R
+
+      if (!is.null(input$append_streets_uni_ms)) {
+        if (input$append_streets_uni_ms == "seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$uni_ms_toe, "tt")
+        } else {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$uni_ms_street, "tt")
+        }
+      } else {
+        barcoded_df_out$appended_oligopaint <- ""
+      }
       
+     if (!is.null(input$append_streets_ms2)) {
+        if (input$append_streets_ms2 == "seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$ms2_toe, "tt")
+        } else if (input$append_streets_ms2 == "toe_seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$ms2_street, "tt")
+        } else if (input$append_streets_ms2 == "ofq") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$ms2_ofq_seq_primer, barcoded_df_out$ms2_ofq_barcode, "ttt")
+        } else {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$ms2_street, "tt")
+        }
+      } else {
+        barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, "")
+      }
     
     
+      if (!is.null(input$append_streets_ms1)) {
+        if (input$append_streets_ms1 == "seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$ms1_toe, "tt")
+        } else if (input$append_streets_ms1 == "toe_seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$ms1_street, "tt")
+        } else if (input$append_streets_ms1 == "ofq") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$ms1_ofq_seq_primer, barcoded_df_out$ms1_ofq_barcode, "ttt")
+        } else {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$ms1_street, "tt")
+        }
+      } else {
+        barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,"")
+      }
+    
+    
+    barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$sequence,"tt")
+    
+      if (!is.null(input$append_streets_bs1)) {
+        if (input$append_streets_bs1 == "seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs1_toe, "tt")
+        } else if (input$append_streets_bs1 == "toe_seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs1_street, "tt")
+        } else if (input$append_streets_bs1 == "ofq") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs1_ofq_seq_primer, barcoded_df_out$bs1_ofq_barcode, "ttt")
+        } else {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs1_street, "tt")
+        }
+      } else {
+        barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,"")
+      }
+      
+      
+      if (!is.null(input$append_streets_bs2)) {
+        if (input$append_streets_bs2 == "seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs2_toe, "tt")
+        } else if (input$append_streets_bs2 == "toe_seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs2_street, "tt")
+        } else if (input$append_streets_bs2 == "ofq") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs2_ofq_seq_primer, barcoded_df_out$bs2_ofq_barcode, "ttt")
+        } else {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,barcoded_df_out$bs2_street, "tt")
+        }
+      } else {
+        barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,"")
+      }
+    
+      if (!is.null(input$append_streets_uni_bs)) {
+        if (input$append_streets_uni_bs == "seq_im") {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$uni_bs_toe)
+        } else {
+          barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint, barcoded_df_out$uni_bs_street)
+        }
+      } else {
+        barcoded_df_out$appended_oligopaint <- paste0(barcoded_df_out$appended_oligopaint,"")
+      }
+    
+    # barcoded_df_out %>% 
+    # mutate(appended_oligopaint = str_pad(appended_oligopaint, round(max(str_count(appended_oligopaint))), side = "right", pad = "t"))
+    return(barcoded_df_out %>% 
+             mutate(appended_oligopaint = str_pad(appended_oligopaint, round(max(str_count(appended_oligopaint))), side = "right", pad = "t"))
+)
+    
+    
+
+    
+    
+    # START DELETE
     
     # mutate(appended_oligopaint = str_c(uni_ms_seq,'tt', ms1_seq,'tt',sequence,'tt', bs1_seq,'tt', uni_bs_seq)) %>% 
     #   mutate(appended_oligopaint = str_pad(appended_oligopaint, round(max(str_count(appended_oligopaint))), side = "right", pad = "t")) %>% 
