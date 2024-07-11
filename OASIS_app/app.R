@@ -1082,7 +1082,7 @@ ui <- fluidPage(
                         "2. ",icon("dna"), "Select the type of", strong("barcodes"), "you want to append.",
                         img(src='cartoon_oligopaint_OASIS.png', align = "center", width = "80%"),
                         ################################################## START DELETE   ######################### 
-                        # DT::dataTableOutput("test_table2"),
+                        DT::dataTableOutput("test_table2"),
                         # br(),
                         # br(),
                         # br(),
@@ -3262,7 +3262,7 @@ server <- function(input, output, session) {
     # amp_primers()$lambda_primers_out %>% 
     #   bind_rows() %>% 
     #   pivot_longer(cols = contains("lambda"), names_to = "lambda_primers", values_to = "lambda_primers")
-    # appended_oligopaints()
+    appended_oligopaints()
     # initial_data()
     # comb_ops()
     # input_sec_ofq_reactive()
