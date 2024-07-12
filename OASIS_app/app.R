@@ -1082,7 +1082,7 @@ ui <- fluidPage(
                         "2. ",icon("dna"), "Select the type of", strong("barcodes"), "you want to append.",
                         img(src='cartoon_oligopaint_OASIS.png', align = "center", width = "80%"),
                         ################################################## START DELETE   ######################### 
-                        DT::dataTableOutput("test_table2"),
+                        # DT::dataTableOutput("test_table2"),
                         # br(),
                         # br(),
                         # br(),
@@ -2109,7 +2109,6 @@ server <- function(input, output, session) {
       need(input$UNI_bs != "", message = FALSE),
       need("input.UNI_bs.length > 0", message = FALSE)
       
-      #"Seebs like you have not uploaded any Backstreet Universal .bed file yet, or you are opting for automatic universal sequence assignment."),
     )
     table_UNI_bs()
   })
@@ -3262,7 +3261,11 @@ server <- function(input, output, session) {
     # amp_primers()$lambda_primers_out %>% 
     #   bind_rows() %>% 
     #   pivot_longer(cols = contains("lambda"), names_to = "lambda_primers", values_to = "lambda_primers")
-    appended_oligopaints()
+    # appended_oligopaints()
+    # appended_oligopaints_uni_ms()
+    # stats_tables()["summary_uni_ms"]
+    # appended_oligopaints_uni_ms()
+    # intersected_summary_UNI_ms()
     # initial_data()
     # comb_ops()
     # input_sec_ofq_reactive()
@@ -4179,34 +4182,65 @@ server <- function(input, output, session) {
     bindEvent(input$append)
   initial_actsec_data_reactive <- reactive({ initial_actsec_data() })
   
+  # create a list with the stars tables from page 1 to join with the appended data below
+  stats_tables <- reactive({
+    list(summary_uni_ms = if (input$op_select == 'new') summary_UNI_ms() else intersected_summary_UNI_ms(),
+           summary_uni_bs = if (input$op_select == 'new') summary_UNI_bs() else intersected_summary_UNI_bs(),
+           summary_ms1 = if (input$op_select == 'new') summary_MS1() else intersected_summary_MS1(),
+           summary_ms2 = if (input$op_select == 'new') summary_MS2() else intersected_summary_MS2(),
+           summary_bs1 = if (input$op_select == 'new') summary_BS1() else intersected_summary_BS1(),
+           summary_bs2 = if (input$op_select == 'new') summary_BS2() else intersected_summary_BS2()) %>% 
+          compact()
+  }) %>% 
+    bindEvent(toListen())
+  
   #filter for each type of street appended
   appended_oligopaints_uni_ms <- reactive({
-    appended_oligopaints() %>% select(contains("uni_ms"))
+    appended_oligopaints() %>% select(contains("uni_ms")) %>% 
+      group_by(chr_uni_ms, uni_ms) %>% 
+      mutate(n = n(), size_kb = round((max(end_uni_ms) - min(start_uni_ms))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      ungroup()
+       #left_join(stats_tables()["summary_uni_ms"], by = c("uni_ms" = "id_uni_ms"))
   })%>%
     bindEvent(input$append)
   
   appended_oligopaints_uni_bs <- reactive({
-    appended_oligopaints() %>% select(contains("uni_bs"))
+    appended_oligopaints() %>% select(contains("uni_bs"))%>% 
+      group_by(chr_uni_bs, uni_bs) %>% 
+      mutate(n = n(), size_kb = round((max(end_uni_bs) - min(start_uni_bs))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      ungroup()
   })%>%
     bindEvent(input$append)
   
   appended_oligopaints_ms1 <- reactive({
-    appended_oligopaints() %>% select(contains("ms1"))
+    appended_oligopaints() %>% select(contains("ms1"))%>% 
+      group_by(chr_ms1, ms1) %>% 
+      mutate(n = n(), size_kb = round((max(end_ms1) - min(start_ms1))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      ungroup()
   })%>%
     bindEvent(input$append)
   
   appended_oligopaints_ms2 <- reactive({
-    appended_oligopaints() %>% select(contains("ms2"))
+    appended_oligopaints() %>% select(contains("ms2"))%>% 
+      group_by(chr_ms2, ms2) %>% 
+      mutate(n = n(), size_kb = round((max(end_ms2) - min(start_ms2))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      ungroup()
   })%>%
     bindEvent(input$append)
   
   appended_oligopaints_bs1 <- reactive({
-    appended_oligopaints() %>% select(contains("bs1"))
+    appended_oligopaints() %>% select(contains("bs1"))%>% 
+      group_by(chr_bs1, bs1) %>% 
+      mutate(n = n(), size_kb = round((max(end_bs1) - min(start_bs1))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      ungroup()
   })%>%
     bindEvent(input$append)
   
   appended_oligopaints_bs2 <- reactive({
-    appended_oligopaints() %>% select(contains("bs2"))
+    appended_oligopaints() %>% select(contains("bs2"))%>% 
+      group_by(chr_bs2, bs2) %>% 
+      mutate(n = n(), size_kb = round((max(end_bs2) - min(start_bs2))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      ungroup()
   })%>%
     bindEvent(input$append)
   
@@ -4222,7 +4256,8 @@ server <- function(input, output, session) {
   bridges <- reactive({
     
     # make a list if the appended dataframes exist only
-    list(uni_ms_bridges_toes = if (!is.null(input$append_streets_uni_ms)) uni_ms_appended_data() else NULL,
+    list(
+         uni_ms_bridges_toes = if (!is.null(input$append_streets_uni_ms)) uni_ms_appended_data() else NULL,
          uni_bs_bridges_toes = if (!is.null(input$append_streets_uni_bs)) uni_bs_appended_data() else NULL,
          ms1_bridges_toes = if (!is.null(input$append_streets_ms1)) ms1_appended_data() else NULL,
          ms2_bridges_toes = if (!is.null(input$append_streets_ms2)) ms2_appended_data() else NULL,

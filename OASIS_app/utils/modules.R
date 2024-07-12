@@ -15,7 +15,7 @@ appened_opsServer <- function(id,
                               input_sec_data = NULL) {
   moduleServer(id, function(input, output, session) {
     
-    input_data <- .data
+    input_data <- .data     
     input_type <- type
     to_select <- id
     input_sec <- input_sec_data
@@ -108,7 +108,7 @@ appened_opsServer <- function(id,
             toe_to_order = toe
           ) %>% 
           select(contains("chr") | contains("start") | contains("end") | 
-                   any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | 
+                   any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) |
                    "secondary" | "secondary_seq" | "street_target_seq" | contains("num") | "bridge_to_order" | "toe_to_order")
         
         # data_stats <- input_data() %>%
@@ -127,7 +127,7 @@ appened_opsServer <- function(id,
         #            "secondary" | "secondary_seq" | "street_target_seq" | "bridge_to_order" | "toe_to_order")
         
       } else if (!is.null(input_type()) && input_type() == "seq_im"){
-        data_streets <- input_data() %>%
+        data_streets <- input_data() %>% 
           ungroup() %>% 
           # select(contains(id)) %>%
           distinct_at(vars(any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2"))), .keep_all = TRUE)%>%
@@ -138,7 +138,8 @@ appened_opsServer <- function(id,
           mutate(street_target_seq = toe,
                  bridge_to_order = str_c(rc(street),ifelse(append_actsec, rc(input_actsec_seq), "") ,rc(secondary_seq)),
                  toe_to_order = rc(toe)) %>% 
-          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | "secondary" | "secondary_seq" | "street_target_seq" | contains("num") | "bridge_to_order"| "toe_to_order")
+          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) | 
+                   "secondary" | "secondary_seq" | "street_target_seq" | contains("num") | "bridge_to_order"| "toe_to_order")
         
         # data_stats <- input_data() %>%
         #   ungroup() %>% 
@@ -160,7 +161,8 @@ appened_opsServer <- function(id,
           ungroup() %>% 
           # select(contains(id)) %>%
           distinct_at(vars(any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2"))), .keep_all = TRUE)%>%
-          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | contains("_seq_primer") | contains("_ofq_key") | contains("_ofq_barcode"))
+          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) | 
+                   contains("_seq_primer") | contains("_ofq_key") | contains("_ofq_barcode"))
         
         # data_stats <- input_data() %>%
         #   ungroup() %>% 
@@ -251,7 +253,7 @@ appened_opsServer <- function(id,
 
 
         data_streets <- data_streets %>%
-          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2"))
+          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) 
                  | street_target_seq | contains("_lambdaFISH_key")
                  | contains("bridge_lambdaFISH") | contains("toe_lambdaFISH")
                  | contains("_FWD_primer_lambdaFISH") | contains("_REV_primer_lambdaFISH") | contains("_primer_lambdaFISHtoe")
