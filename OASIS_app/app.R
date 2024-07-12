@@ -1300,6 +1300,8 @@ server <- function(input, output, session) {
          max_kmer <= input$k_mer_count & 
          is_repeat != as.numeric(input$avoid_repeats)]
     
+    return(DT)
+    
   }) %>% bindCache(input$organism_oligopaints, input$off_target_score, input$k_mer_count, input$avoid_repeats)
   
   # Use bindEvent to trigger the reactive expression
