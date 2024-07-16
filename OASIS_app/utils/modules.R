@@ -302,9 +302,9 @@ appened_opsServer <- function(id,
         options = list(
           deferRender = FALSE,
           # scroller = TRUE, # Gives a problem with the spacing of the last row
-          dom = 't',
-          scrollX = "100%",
-          scrollY = "300px",
+          # dom = 't',
+          # scrollX = "100%",
+          # scrollY = "300px",
           fixedColumns = TRUE
         )
       )

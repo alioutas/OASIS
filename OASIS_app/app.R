@@ -35,6 +35,7 @@ require(data.table)
 require(bsplus)
 require(bslib)
 require(plotly)
+require(kableExtra)
 #require(emo)
 
 

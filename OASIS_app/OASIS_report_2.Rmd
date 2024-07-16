@@ -188,6 +188,8 @@ For more details: Walking along chromosomes as described in Nir, Farabella, Pere
 
 *Any appended OligoSTORM barcodes come from the OligoLEGO list: * **`r params$ops_organism`**
 
+*(Below are the first 20 entries... the rest is in the downloaded files.)*
+
 ```{r bridges, echo = F, results='asis'} 
 print_bridges <- function(name, data) {
   if (!is.null(data) && nrow(data) > 0) {
@@ -196,10 +198,10 @@ print_bridges <- function(name, data) {
     cat("\n\n#### Bridges for ", name_label, " \n\n")
     cat("\n")
         # Check if number of rows is less than or equal to 20
-    if (nrow(data) <= 20) {
+    if (nrow(data) <= 30) {
       return(knitr::kable(data))  # Print the whole dataset
     } else {
-      return(knitr::kable(head(data)))  # Print the head of the dataset
+      return(knitr::kable(head(data, n = 30)))  # Print the head of the dataset
     }
   } else {
     cat(paste0(name, " bridges data is NULL or empty\n"))
