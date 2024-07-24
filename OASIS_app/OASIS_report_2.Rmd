@@ -21,6 +21,7 @@ params:
 knitr::opts_chunk$set(echo = TRUE)
 require(tidyverse)
 require(DT)
+require(kableExtra)
 
 # print all the datatables that are in the list params$bridges
 bridge_names <- c(uni_ms_appended = "Universal Mainstreet",
@@ -153,17 +154,27 @@ if(all(c("FWD_primers_out", "REV_primers_out") %in% names(params$amp_primers))) 
   cat("\n\n#### Universal Oligopaints library amplification Forward and Reverse primers \n\n")
   cat("\n")
   
-  print(knitr::kable(params$amp_primers$FWD_primers_out))
-  print(knitr::kable(params$amp_primers$REV_primers_out))
+  print(knitr::kable(params$amp_primers$FWD_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
+  print(knitr::kable(params$amp_primers$REV_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
 } else if ("FWD_primers_out" %in% names(params$amp_primers) && !("REV_primers_out" %in% names(params$amp_primers))) {
   cat("<span style='color: red;'>**Warning: **You did not choose any universal Reverse primers. You will not be able to amplify this library by PCR.</span>\n\n")
   cat("\n\n#### Universal Oligopaints library Forward primers \n\n")
-  print(knitr::kable(params$amp_primers$FWD_primers_out))
+  print(knitr::kable(params$amp_primers$FWD_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")))
 
 } else if (!("FWD_primers_out" %in% names(params$amp_primers)) && "REV_primers_out" %in% names(params$amp_primers)) {
   cat("<span style='color: red;'>**Warning: **You did not choose any universal Forward primers. You will not be able to amplify this library by PCR.</span>\n\n")
   cat("\n\n#### Universal Oligopaints library Reverse primers \n\n")
-  print(knitr::kable(params$amp_primers$REV_primers_out))
+  print(knitr::kable(params$amp_primers$REV_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")))
 
 } else {
   cat("<span style='color: red;'>**Warning: **You did not choose any Universal primers. You will not be able to amplify this library by PCR.</span>")
@@ -198,11 +209,17 @@ print_bridges <- function(name, data) {
     cat("\n\n#### Bridges for ", name_label, " \n\n")
     cat("\n")
         # Check if number of rows is less than or equal to 20
-    if (nrow(data) <= 30) {
-      return(knitr::kable(data))  # Print the whole dataset
-    } else {
-      return(knitr::kable(head(data, n = 30)))  # Print the head of the dataset
-    }
+    # if (nrow(data) <= 30) {
+      return(knitr::kable(data) %>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
+  #   } else {
+  #     return(knitr::kable(head(data, n = 30)) %>%
+  #             scroll_box(width = "100%", height = "500px")%>%
+  # kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  #     )
+  #   }
   } else {
     cat(paste0(name, " bridges data is NULL or empty\n"))
     return(invisible(NULL))  # Return NULL explicitly but invisibly
@@ -260,7 +277,10 @@ if(any(str_detect(bridges_colnames, "lambdaFISH"))){
 
 for (i in seq_along(params$amp_primers$lambda_primers_out)) {
     # Print the dataframe as a table
-    print(knitr::kable(params$amp_primers$lambda_primers_out[[i]]))
+    print(knitr::kable(params$amp_primers$lambda_primers_out[[i]])%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
 }
   
 } 

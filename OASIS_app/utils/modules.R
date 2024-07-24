@@ -292,7 +292,6 @@ appened_opsServer <- function(id,
     # Define the proxy for the datatable
     proxy <- dataTableProxy(id)
     
-    
     # Render the datatable
     output$street_label <- DT::renderDataTable({
       datatable(
@@ -303,7 +302,7 @@ appened_opsServer <- function(id,
           deferRender = FALSE,
           # scroller = TRUE, # Gives a problem with the spacing of the last row
           # dom = 't',
-          # scrollX = "100%",
+          scrollX = "100%",
           # scrollY = "300px",
           fixedColumns = TRUE
         )
