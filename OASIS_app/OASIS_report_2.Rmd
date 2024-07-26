@@ -142,7 +142,7 @@ value_box(
 ```
 
 
-### Barcodes appended
+### Barcodes appended overview
 ```{r barcode_plot, echo = F, warning=F, results='asis'}
 # p <- get(params$order_file)
 # p
