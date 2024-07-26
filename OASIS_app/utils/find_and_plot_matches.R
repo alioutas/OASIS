@@ -5,9 +5,7 @@ library(ggplot2)
 # import data
 
 # df <- read_csv('/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/HMS/genome_project/WGI2_lib/output/WGI2.0/WGI2.0_appended_ops_steps1_13_ORDER.txt', col_names = 'ops')
-df<- read_csv('/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/genome_project/WGI2_lib/output/WGI2.0/WGI2.0_appended_ops_steps1_13_GLess_IDT11_ORDER.txt', col_names = 'ops')
-names(df) <- c('ops')
-# df$id <- 1:nrow(df)
+# df<- read_csv('/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/genome_project/WGI2_lib/output/WGI2.0/WGI2.0_appended_ops_steps1_13_GLess_IDT11_ORDER.txt', col_names = 'appended_oligopaint')
 
 # query_seq <- c('GCACGCAGGTTGGTCGGTAC',
 #                'CTACCGTTCGTGGAGGCACC',
@@ -20,39 +18,39 @@ names(df) <- c('ops')
 #                'GCCTCCGCATCTGCGAATCC',
 #                'CGGTGCTTAGTGCGTGCAGG',
 #                'CGTTCGGTTCTCCGGTCACC')
-
-query_seq <- c('GATCGGGTCCCACAACCACG', #43
-               'GTGCCAGGCAACCCGTACAG', #44
-                'GAACGGCGTCACGCTGAGAG', #45
-               'CGACCGGACACACCTCCTCC', #46
-               'CTATCAGGGCAACCCGCAGG') #47
-
-
-query_name <- c('This_is_43This_is_43This_is_43',
-                'This_is_44This_is_44This_is_44',
-                'This_is_45This_is_45This_is_45',
-                'This_is_46This_is_46This_is_46',
-                'This_is_47This_is_47This_is_47')
-
-query_df <- tibble(query_seq, query_name)
+# 
+# query_seq <- c('GATCGGGTCCCACAACCACG', #43
+#                'GTGCCAGGCAACCCGTACAG', #44
+#                 'GAACGGCGTCACGCTGAGAG', #45
+#                'CGACCGGACACACCTCCTCC', #46
+#                'CTATCAGGGCAACCCGCAGG') #47
+# 
+# 
+# query_name <- c('This_is_43This_is_43This_is_43',
+#                 'This_is_44This_is_44This_is_44',
+#                 'This_is_45This_is_45This_is_45',
+#                 'This_is_46This_is_46This_is_46',
+#                 'This_is_47This_is_47This_is_47')
+# 
+# query_df <- tibble(query_seq, query_name)
 
 
 find_and_plot_matches <- function(df, query_df) {
   # Check if colors are provided, else use ColorBrewer
-  colors_list <- RColorBrewer::brewer.pal(length(query_df$query_seq), "Dark2")
+  # colors_list <- RColorBrewer::brewer.pal(length(query_df$query_seq), "Dark2")
   
   # Ensure 'id' column exists in 'df'
   if(!"id" %in% names(df)) {
     df$id <- seq_len(nrow(df))
   }
   
-  # Check if 'ops' column exists in 'df'
-  if(!"ops" %in% names(df)) {
+  # Check if 'appended_oligopaint' column exists in 'df'
+  if(!"appended_oligopaint" %in% names(df)) {
     stop("The dataframe does not have a 'ops' column.")
   }
   
   df <- df %>%
-    mutate(length = nchar(ops))
+    mutate(length = nchar(appended_oligopaint))
   
   max_length <- max(df$length)
   
@@ -63,9 +61,9 @@ find_and_plot_matches <- function(df, query_df) {
     seq <- query_df$query_seq[i]
     # Find exact matches for each sequence
     matches_found <- df %>%
-      mutate(match_found = stringr::str_detect(ops, stringr::fixed(seq))) %>%
+      mutate(match_found = stringr::str_detect(appended_oligopaint, stringr::fixed(seq))) %>%
       filter(match_found) %>%
-      mutate(match_start = stringr::str_locate(ops, stringr::fixed(seq))[,1],
+      mutate(match_start = stringr::str_locate(appended_oligopaint, stringr::fixed(seq))[,1],
              match_end = match_start + nchar(seq) - 1,
              sequence_id = i,
              match_start_percent = round((match_start / max_length * 100)/10)*10,
@@ -79,6 +77,8 @@ find_and_plot_matches <- function(df, query_df) {
   
   # Combine all matches into a single data frame
   df_matches <- bind_rows(matches)
+  
+  # print(df_matches$sequence_id)
   
   # Calculate count of each sequence's appearance
   sequence_counts <- df_matches %>%
@@ -103,8 +103,8 @@ find_and_plot_matches <- function(df, query_df) {
   
   # Join back to df_matches for labeling
   df_matches <- df_matches %>%
-    left_join(sequence_counts, by = "sequence_id") %>%
-    mutate(color = setNames(colors_list, seq_along(query_df$query_seq))[as.character(sequence_id)])
+    left_join(sequence_counts, by = "sequence_id") #%>%
+    # mutate(color = setNames(colors_list, seq_along(query_df$query_seq))[as.character(sequence_id)])
   
   # Generate the plot
   plot <- ggplot() +
@@ -113,7 +113,7 @@ find_and_plot_matches <- function(df, query_df) {
                                      xmax = as.numeric(id) - 0.5,
                                      ymin = match_start_percent, 
                                      ymax = match_end_percent, 
-                                     fill = color, 
+                                     # fill = color,
                                      group = id),
               stat = "identity") +
     scale_fill_identity() +
@@ -134,4 +134,4 @@ find_and_plot_matches <- function(df, query_df) {
   return(list(plot = plot, matches = df_matches))
 }
 
-find_and_plot_matches(df, query_df)['plot']
+# find_and_plot_matches(df, query_df)['plot']

@@ -970,7 +970,8 @@ ui <- fluidPage(
                        "<strong>Before you press this button make sure you have uploaded all necessary .bed files and you have properly selected the specific barcode scheme you want to append to your Oligopaints.</strong>"
                      ),
                      style = "position:center; left: 25%; right: 25%; color: #000; background-color: #F1C232; border-color: #000",
-                     icon("chevron-circle-right")
+                     icon("chevron-circle-right"),
+                     disabled = T
                    ),
                    
                    #helpText("Click the button to append barcodes to the uploaded Oligopaints."),
@@ -1081,7 +1082,13 @@ ui <- fluidPage(
                  ###### RIGHT PANEL ######
                  column(9,
                         "2. ",icon("dna"), "Select the type of", strong("barcodes"), "you want to append.",
-                        img(src='cartoon_oligopaint_OASIS.png', align = "center", width = "80%"),
+                        conditionalPanel(
+                          condition = "!input.append",
+                          img(src='cartoon_oligopaint_OASIS.png', align = "center", width = "80%"),
+                          ),
+                        conditionalPanel(condition = 'input.append',
+                          plotOutput("myPlot")
+                          ),
                         ################################################## START DELETE   ######################### 
                         # DT::dataTableOutput("test_table2"),
                         # br(),
@@ -1091,7 +1098,7 @@ ui <- fluidPage(
                         # textOutput("test_text2"),
                         ################################################## END DELETE   ######################### 
                         conditionalPanel(
-                          condition = "input.streets.includes(uni_ms)", #BUG if the quote is closed nothig appears in the second tab
+                          condition = "input.streets.includes(uni_ms)", 
                           appened_opsUI(id = 'uni_ms')
                         ),
                         conditionalPanel(
@@ -1379,7 +1386,7 @@ server <- function(input, output, session) {
   
   ### Check for wrong coordinates in the bed file and alert that intersecting from scratch will take a long time
   
-  
+
   
   
   # Notification that the intersection of new Oligopaints might take some time to run
@@ -3254,9 +3261,22 @@ server <- function(input, output, session) {
   # Panel SELECT BARCODES to append SERVER
   ###############-----------------------------------/2/-------------------------- ######################## 
   
+  # make append button inactive if no barcodes are uploaded
+  observe({
+    # Assume input$op_new and input$op_intersected are inputs that determine the button state
+    if (isTruthy(input$op_new) || isTruthy(input$op_intersected)) {
+      # Enable the button if both conditions are true
+      updateActionButton(session, "append", disabled = FALSE)
+    } else {
+      # Disable the button otherwise
+      updateActionButton(session, "append", disabled = TRUE)
+    }
+  })
+  
   
   ### START DELETE
   output$test_table2 <- DT::renderDataTable({
+    # myPlot()
     # lambda_toes_lib()
     #available_os_barcodes <- available_os_barcodes()
 
@@ -4714,6 +4734,40 @@ ops_organism <- reactive({
   bindEvent(input$append)
 
 
+# create a plot and save it as a png file
+visual_barcodes_plot <- renderImage({
+ ggplot(mtcars, aes(x = factor(cyl))) + geom_bar()
+})
+  
+
+myPlot <- reactive({
+  query_df <- tibble(query_seq = character(), query_name = character())
+  
+  column_names <- c('uni_ms', 'uni_bs', 'ms1', 'ms2', 'bs1', 'bs2')
+  
+  for (i in seq_along(bridges())) {
+    
+    bridge_data <- bridges()[[i]]
+    available_col <- names(bridge_data)[names(bridge_data) %in% column_names][1]
+    
+    query_seq <- bridge_data$street_target_seq
+    query_name <- bridge_data[[available_col]]
+
+    query_df_temp <- tibble(query_seq = query_seq, query_name = query_name)
+    query_df <- bind_rows(query_df, query_df_temp)
+  }
+  
+  df <- as_tibble(appended_oligopaints()['appended_oligopaint'], row_names = c('appended_oligopaint'))
+  # return(df)
+  
+  find_and_plot_matches(df = df, query_df = query_df)['plot']
+  
+}) %>% 
+  bindEvent(input$append)
+
+output$myPlot <- renderPlot({
+  myPlot()
+})
   
   ########################################################################################################
   # Panel SELECT Downloads SERVER
@@ -4725,18 +4779,6 @@ ops_organism <- reactive({
       need(input$append != 0, "No Oligopaints appended yet... go back to 'Upload' / 'Barcodes' tabs.")
     )
     
-    # Access the current value of the reactive expression bridges
-    # params <- reactiveValues(bridges = NULL,
-    #                          amp_primers = NULL)
-
-    # Set up parameters to pass to Rmd document
-    params <- list(bridges = bridges(),
-                   amp_primers = amp_primers(),
-                   valuebox_data = valuebox_data(),
-                   valuebox_data_dist = valuebox_data_dist(),
-                   ops_organism =  ops_organism()
-                   )
-    
     tempReport <- file.path(tempdir(), "report.Rmd")
     file.copy('OASIS_report_2.Rmd', tempReport, overwrite = TRUE)
     
@@ -4745,14 +4787,15 @@ ops_organism <- reactive({
       params = list(
         bridges = bridges(),
         amp_primers = amp_primers(),
+        order_file = myPlot(),
         valuebox_data = valuebox_data(),
         valuebox_data_dist = valuebox_data_dist(),
         ops_organism = ops_organism()
       ),
       envir = globalenv()#new.env(parent = globalenv())
     )
-    includeMarkdown(knitr::knit(rmarkdown_output))
-    
+    # includeMarkdown(knitr::knit(rmarkdown_output))
+    HTML(markdown::markdownToHTML(includeMarkdown(knitr::knit(rmarkdown_output))))
   })
 
   output$download_zip_files <- downloadHandler(

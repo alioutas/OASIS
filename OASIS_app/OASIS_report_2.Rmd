@@ -1,10 +1,8 @@
 ---
-title: "OASIS Appended Library Report"
+title: "" #"OASIS Appended Library Report"
 author: ""
 date: "`r format(Sys.Date(), '%Y.%m.%d')`"
-output:
-  html_document:
-    encoding: UTF-8
+output: html_document
 params:
   bridges: NA
   toes: NA
@@ -18,10 +16,14 @@ params:
 
 
 ```{r setup, include=FALSE}
+#    encoding: UTF-8
+
 knitr::opts_chunk$set(echo = TRUE)
 require(tidyverse)
 require(DT)
 require(kableExtra)
+library(RColorBrewer)
+library(ggplot2)
 
 # print all the datatables that are in the list params$bridges
 bridge_names <- c(uni_ms_appended = "Universal Mainstreet",
@@ -138,6 +140,42 @@ value_box(
  full_screen = TRUE,
 )
 ```
+
+
+### Barcodes appended
+```{r barcode_plot, echo = F, warning=F, results='asis'}
+# p <- get(params$order_file)
+# p
+# query_seq <- c('GATCGGGTCCCACAACCACG', #43
+#                'GTGCCAGGCAACCCGTACAG', #44
+#                 'GAACGGCGTCACGCTGAGAG', #45
+#                'CGACCGGACACACCTCCTCC', #46
+#                'CTATCAGGGCAACCCGCAGG') #47
+# 
+# 
+# query_name <- c('This_is_43This_is_43This_is_43',
+#                 'This_is_44This_is_44This_is_44',
+#                 'This_is_45This_is_45This_is_45',
+#                 'This_is_46This_is_46This_is_46',
+#                 'This_is_47This_is_47This_is_47')
+# 
+# query_df <- tibble(query_seq, query_name)
+# 
+# 
+# p <- find_and_plot_matches(df, query_df)['plot']
+
+# This code chunk will be evaluated if 'plot' is not passed as a parameter.
+if (is.null(params$order_file)) {
+    cat("Plot is NULL")
+} else {
+  p <- params$order_file
+    renderPlot(p)
+}
+
+
+```
+
+
 
 ### Reagents to Order
 
