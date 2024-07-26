@@ -33,90 +33,84 @@ library(ggplot2)
 #                 'This_is_47This_is_47This_is_47')
 # 
 # query_df <- tibble(query_seq, query_name)
+# 
+# 
+
+
 
 
 find_and_plot_matches <- function(df, query_df) {
-  # Check if colors are provided, else use ColorBrewer
-  # colors_list <- RColorBrewer::brewer.pal(length(query_df$query_seq), "Dark2")
-  
-  # Ensure 'id' column exists in 'df'
-  if(!"id" %in% names(df)) {
+  if (!"id" %in% names(df)) {
     df$id <- seq_len(nrow(df))
   }
   
-  # Check if 'appended_oligopaint' column exists in 'df'
-  if(!"appended_oligopaint" %in% names(df)) {
-    stop("The dataframe does not have a 'ops' column.")
+  if (!"appended_oligopaint" %in% names(df)) {
+    stop("The dataframe does not have an 'appended_oligopaint' column.")
   }
   
-  df <- df %>%
-    mutate(length = nchar(appended_oligopaint))
+  df <- df %>% mutate(length = nchar(appended_oligopaint))
+  max_length <- max(df$length, na.rm = TRUE)
   
-  max_length <- max(df$length)
-  
-  # Initialize list to store matches
   matches <- list()
   
-  for(i in seq_along(query_df$query_seq)) {
+  for (i in seq_along(query_df$query_seq)) {
     seq <- query_df$query_seq[i]
-    # Find exact matches for each sequence
     matches_found <- df %>%
-      mutate(match_found = stringr::str_detect(appended_oligopaint, stringr::fixed(seq))) %>%
+      mutate(match_found = str_detect(appended_oligopaint, fixed(seq))) %>%
       filter(match_found) %>%
-      mutate(match_start = stringr::str_locate(appended_oligopaint, stringr::fixed(seq))[,1],
-             match_end = match_start + nchar(seq) - 1,
-             sequence_id = i,
-             match_start_percent = round((match_start / max_length * 100)/10)*10,
-             match_end_percent = round((match_end / max_length * 100)/10)*10 
-      )%>%
+      mutate(
+        match_start = str_locate(appended_oligopaint, fixed(seq))[, 1],
+        match_end = match_start + nchar(seq) - 1,
+        sequence_id = i,
+        match_start_percent = ((match_start / max_length * 100) / 10) * 10,
+        match_end_percent = ((match_end / max_length * 100) / 10) * 10
+      ) %>%
       select(id, match_start_percent, match_end_percent, sequence_id)
+      
+    matches_found$match_start_percent <- min(matches_found$match_start_percent)
+    matches_found$match_end_percent <- min(matches_found$match_end_percent)
     
-    # Store the results
     matches[[i]] <- matches_found
   }
   
-  # Combine all matches into a single data frame
   df_matches <- bind_rows(matches)
   
-  # print(df_matches$sequence_id)
-  
-  # Calculate count of each sequence's appearance
   sequence_counts <- df_matches %>%
     group_by(sequence_id) %>%
-    summarise(count = n()) %>%
+    summarise(count = n(), .groups = 'drop') %>%
     mutate(
       sequence = query_df$query_seq[sequence_id],
       name = if_else(
         str_length(query_df$query_name[sequence_id]) > 20,
         str_c(
-          str_sub(query_df$query_name[sequence_id], 1, 7), "...", str_sub(query_df$query_name[sequence_id], -3, -1)
+          str_sub(query_df$query_name[sequence_id], 1, 7), "...", str_sub(query_df$query_name[sequence_id], -3, -1),
+          paste0("(", count, ")")
         ),
-        query_df$query_name[sequence_id]
+        paste(query_df$query_name[sequence_id] ,
+        paste0("(", count, ")"))
       ),
-      label = paste(
-        name, "\n",
-        str_c(
-          str_sub(sequence, 1, 5), "...", str_sub(sequence, -3, -1)
-        ), "\n n: ", count
-      )
+      label = paste(name, "\n", str_c(str_sub(sequence, 1, 5), "...", str_sub(sequence, -3, -1)))
     )
   
-  # Join back to df_matches for labeling
   df_matches <- df_matches %>%
-    left_join(sequence_counts, by = "sequence_id") #%>%
-    # mutate(color = setNames(colors_list, seq_along(query_df$query_seq))[as.character(sequence_id)])
+    left_join(sequence_counts, by = "sequence_id")
   
-  # Generate the plot
+  # Generate a color list for each sequence_id, ensuring there's enough colors
+  num_unique_ids <- length(unique(df_matches$sequence_id))
+  if (num_unique_ids > 8) {
+    colors_list <- colorRampPalette(RColorBrewer::brewer.pal(8, "Accent"))(num_unique_ids)
+  } else {
+    colors_list <- RColorBrewer::brewer.pal(num_unique_ids, "Accent")
+  }
+  
+  color_mapping <- setNames(colors_list, unique(df_matches$sequence_id))
+  
   plot <- ggplot() +
     geom_bar(data = df, aes(x = as.numeric(id), y = 100), stat = "identity", fill = "#EAEAEA") +
-    geom_rect(data = df_matches, aes(xmin = as.numeric(id) + 0.5, 
-                                     xmax = as.numeric(id) - 0.5,
-                                     ymin = match_start_percent, 
-                                     ymax = match_end_percent, 
-                                     # fill = color,
-                                     group = id),
+    geom_rect(data = df_matches, aes(xmin = as.numeric(id) + 0.5, xmax = as.numeric(id) - 0.5,
+                                     ymin = match_start_percent, ymax = match_end_percent, fill = factor(sequence_id)),
               stat = "identity") +
-    scale_fill_identity() +
+    scale_fill_manual(values = color_mapping) +
     theme_bw() +
     labs(x = "Oligopaint number in library", y = "Oligopaint length") +
     coord_flip() +
@@ -126,12 +120,9 @@ find_and_plot_matches <- function(df, query_df) {
               hjust = 0, vjust = +1.1, size = 2.8, color = "black") +
     ylim(c(0, 120))+
     theme_minimal()+
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-          axis.line = element_blank())+
-    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-  
-  # return plot and matches
+    theme(legend.position="none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          axis.line = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank())
   return(list(plot = plot, matches = df_matches))
 }
 
-# find_and_plot_matches(df, query_df)['plot']
+# find_and_plot_matches(df, query_df)$'plot'

@@ -4743,14 +4743,17 @@ visual_barcodes_plot <- renderImage({
 myPlot <- reactive({
   query_df <- tibble(query_seq = character(), query_name = character())
   
-  column_names <- c('uni_ms', 'uni_bs', 'ms1', 'ms2', 'bs1', 'bs2')
+  column_names_id <- c('uni_ms', 'uni_bs', 'ms1', 'ms2', 'bs1', 'bs2')
+  column_names_seq <- c('street_target_seq', 'ms1_ofq_seq_primer', 'ms2_ofq_seq_primer', 'bs1_ofq_seq_primer', 'bs2_ofq_seq_primer')
   
   for (i in seq_along(bridges())) {
     
     bridge_data <- bridges()[[i]]
-    available_col <- names(bridge_data)[names(bridge_data) %in% column_names][1]
+    available_col <- names(bridge_data)[names(bridge_data) %in% column_names_id][1]
+    available_seq_col <- names(bridge_data)[names(bridge_data) %in% column_names_seq][1]
     
-    query_seq <- bridge_data$street_target_seq
+    
+    query_seq <- bridge_data[[available_seq_col]]
     query_name <- bridge_data[[available_col]]
 
     query_df_temp <- tibble(query_seq = query_seq, query_name = query_name)
