@@ -1,0 +1,374 @@
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(purrr)
+library(stringi)
+library(RColorBrewer)
+
+# import data
+
+# df <- read_csv('/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/HMS/genome_project/WGI2_lib/output/WGI2.0/WGI2.0_appended_ops_steps1_13_ORDER.txt', col_names = 'ops')
+# df<- read_csv('/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/genome_project/WGI2_lib/output/WGI2.0/WGI2.0_appended_ops_steps1_13_GLess_IDT11_ORDER.txt', col_names = 'appended_oligopaint')
+
+# query_seq <- c('GCACGCAGGTTGGTCGGTAC',
+#                'CTACCGTTCGTGGAGGCACC',
+#                'GCCTGGAGAAGCCAACGGAG',
+#                'GCGTGCGTAAGCCCATGTCG',
+#                'CTCATGCGTGGTCACCCGTC',
+#                'CGAGCCCGGAGACGCGATAG',
+#                'CAAGGGCGCCTACCCGATTC',
+#                'CGGAGTACCTCGCGCTCAAC',
+#                'GCCTCCGCATCTGCGAATCC',
+#                'CGGTGCTTAGTGCGTGCAGG',
+#                'CGTTCGGTTCTCCGGTCACC')
+# 
+# query_seq <- c('GATCGGGTCCCACAACCACG', #43
+#                'GTGCCAGGCAACCCGTACAG', #44
+#                 'GAACGGCGTCACGCTGAGAG', #45
+#                'CGACCGGACACACCTCCTCC', #46
+#                'CTATCAGGGCAACCCGCAGG') #47
+# 
+# 
+# query_name <- c('I_am_43I_am_43I_am_43',
+#                 'I_am_44I_am_44I_am_44',
+#                 'I_am_45I_am_45I_am_45',
+#                 'I_am_46I_am_46I_am_46',
+#                 'I_am_47I_am_47I_am_47')
+# 
+# query_df <- tibble(query_seq, query_name)
+
+
+find_and_plot_matches <- function(df, query_df) {
+  #
+  # 0) Minimal dependencies
+  #
+  # We'll only use stringi for fast matching and RColorBrewer for colors.
+  # If you prefer, you can remove RColorBrewer and define your own color palette.
+  #
+  # If you want absolutely zero dependencies, you can do base R substring search
+  # and define your own color palette. But stringi is usually faster.
+  #
+  if (!requireNamespace("stringi", quietly = TRUE)) {
+    stop("Please install stringi: install.packages('stringi')")
+  }
+  if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
+    stop("Please install RColorBrewer: install.packages('RColorBrewer')")
+  }
+  
+  #
+  # 1) Ensure columns exist
+  #
+  if (!is.null(df) && !"id" %in% names(df)) {
+    df$id <- seq_len(nrow(df))  # define ID as row index
+  }
+  if (!"appended_oligopaint" %in% names(df)) {
+    stop("df must have a column 'appended_oligopaint'")
+  }
+  
+  #
+  # 2) Precompute lengths and do matching
+  #
+  appended_len <- nchar(df$appended_oligopaint)
+  max_length   <- max(appended_len, na.rm = TRUE)
+  
+  # For each query sequence, find the first match location in each row
+  # We'll store them in a simple data frame. 
+  #   columns: id, sequence_id, match_start, match_end
+  out_list <- vector("list", length(query_df$query_seq))
+  
+  for (i in seq_along(query_df$query_seq)) {
+    seq_i <- query_df$query_seq[i]
+    # stri_locate_first_fixed returns a 2-col matrix: start, end
+    locs  <- stringi::stri_locate_first_fixed(df$appended_oligopaint, seq_i)
+    valid <- which(!is.na(locs[, 1]))  # rows that had a match
+    if (length(valid) == 0) {
+      out_list[[i]] <- data.frame(
+        id = integer(0), 
+        sequence_id = integer(0),
+        match_start = integer(0),
+        match_end   = integer(0)
+      )
+    } else {
+      out_list[[i]] <- data.frame(
+        id          = df$id[valid],
+        sequence_id = i,
+        match_start = locs[valid, 1],
+        match_end   = locs[valid, 2]
+      )
+    }
+  }
+  
+  results <- do.call(rbind, out_list)
+  if (!nrow(results)) {
+    message("No matches found at all.")
+    # We'll still produce an empty plot, perhaps
+  }
+  
+  #
+  # 3) Convert match positions to discrete bins (rounded to 10% steps).
+  #    Then, each sequence_id's match is pinned to the minimum start/end (like your code).
+  #
+  #    match_start_percent = floor((match_start / max_length)*10)*10
+  #    match_end_percent   = floor((match_end   / max_length)*10)*10
+  #
+  #    Then group by sequence_id and take min() to replicate your logic.
+  #
+  # We can do that all in base R to avoid overhead of group_by() + mutate().
+  #
+  
+  results$match_start_percent <- floor((results$match_start / max_length) * 10) * 10
+  results$match_end_percent   <- floor((results$match_end   / max_length) * 10) * 10
+  
+  # For each sequence_id, take the min start/end among that group
+  # We'll do a tapply-based approach:
+  min_start <- tapply(results$match_start_percent, results$sequence_id, min)
+  min_end   <- tapply(results$match_end_percent,   results$sequence_id, min)
+  
+  # Then reassign
+  # results$match_start_percent = min_start for that sequence_id
+  # results$match_end_percent   = min_end   for that sequence_id
+  # We'll do it by indexing. 
+  results$match_start_percent <- min_start[as.character(results$sequence_id)]
+  results$match_end_percent   <- min_end  [as.character(results$sequence_id)]
+  
+  #
+  # 4) Expand each row into multiple bins. 
+  #    If match_start_percent=10, match_end_percent=30 => bins = c(10,20,30).
+  #    We'll do a single for-loop in base R.
+  #
+  
+  nres <- nrow(results)
+  # We'll accumulate the expansions in vectors:
+  out_id   <- integer()
+  out_seq  <- integer()
+  out_bins <- integer()
+  
+  # Pre-allocate if you want more speed. We can guess the maximum possible expansion: 
+  # each row might expand up to 12 bins (0..110). 
+  # We'll do a rough upper bound: nrow(results)*12
+  out_id  <- integer(nres * 12)
+  out_seq <- integer(nres * 12)
+  out_bins<- integer(nres * 12)
+  pos     <- 1
+  
+  for (k in seq_len(nres)) {
+    st <- results$match_start_percent[k]
+    en <- results$match_end_percent[k]
+    if (is.na(st) || is.na(en) || en < st) {
+      next
+    }
+    seq_bins <- seq(st, en, by = 10)
+    nb <- length(seq_bins)
+    
+    out_id [pos:(pos+nb-1)]  <- results$id[k]
+    out_seq[pos:(pos+nb-1)]  <- results$sequence_id[k]
+    out_bins[pos:(pos+nb-1)] <- seq_bins
+    pos <- pos + nb
+  }
+  
+  # Now out_id, out_seq, out_bins up to pos-1 are valid
+  out_id   <- out_id  [1:(pos-1)]
+  out_seq  <- out_seq [1:(pos-1)]
+  out_bins <- out_bins[1:(pos-1)]
+  
+  # We'll store these expansions in a final data.frame results_binned
+  results_binned <- data.frame(
+    id          = out_id,
+    sequence_id = out_seq,
+    bins        = out_bins,
+    stringsAsFactors = FALSE
+  )
+  
+  #
+  # 5) Summarize for labeling
+  #
+  # We want to do once per sequence: 
+  #   count = how many rows in 'results' 
+  #   label = short name + partial of seq
+  #
+  # We'll store in a data.frame. We'll do a quick table for count:
+  seq_counts <- as.data.frame(table(results$sequence_id), stringsAsFactors = FALSE)
+  names(seq_counts) <- c("sequence_id", "count")
+  seq_counts$sequence_id <- as.integer(seq_counts$sequence_id)
+  
+  # Build 'sequence' and 'query_name'
+  #   query_df$query_seq[sequence_id]
+  #   query_df$query_name[sequence_id]
+  
+  get_label_data <- function(idx) {
+    # short label logic
+    nm      <- query_df$query_name[idx]
+    seq_str <- query_df$query_seq[idx]
+    
+    # shorten name if > 20 chars
+    if (nchar(nm) > 20) {
+      nm_short <- paste0(
+        substr(nm, 1, 7),
+        "...",
+        substr(nm, nchar(nm)-2, nchar(nm))
+      )
+    } else {
+      nm_short <- nm
+    }
+    
+    # final label includes sequence substring
+    # e.g. "ABC(5) \n GATCG..."
+    # but let's do the same logic as you had
+    # name + "(" + count + ")" => then \n => first 5, last 3 of seq
+    paste0(nm_short)
+  }
+  
+  # Build a data frame with columns: sequence_id, name, label, etc.
+  # Then we'll left-join it onto results_binned
+  label_df <- data.frame(
+    sequence_id = seq_along(query_df$query_seq),
+    name_full   = query_df$query_name,
+    seq_full    = query_df$query_seq,
+    stringsAsFactors = FALSE
+  )
+  
+  # Merge with seq_counts to get count
+  label_df <- merge(label_df, seq_counts, by = "sequence_id", all.x = TRUE)
+  # if a sequence had no match, it won't appear in seq_counts => NA
+  # fill count=0 or similar
+  label_df$count[is.na(label_df$count)] <- 0
+  
+  # Now build the final label
+  label_df$display_name <- ifelse(
+    nchar(label_df$name_full) > 20,
+    paste0(
+      substr(label_df$name_full, 1, 7), 
+      "...",
+      substr(label_df$name_full, nchar(label_df$name_full)-2, nchar(label_df$name_full)),
+      "(",
+      label_df$count,
+      ")"
+    ),
+    paste0(label_df$name_full, " (", label_df$count, ")")
+  )
+  
+  label_df$label <- paste0(
+    label_df$display_name, "\n", 
+    substr(label_df$seq_full, 1, 5), "...",
+    substr(label_df$seq_full, nchar(label_df$seq_full) - 2, nchar(label_df$seq_full))
+  )
+  
+  #
+  # 6) Attach the label onto each row in results_binned
+  #    But we only need the label for the "distinct sequence_id" row
+  #    => We'll do a "distinct per sequence_id" approach in the plot
+  #
+  
+  # We'll create a small vector for label by sequence_id:
+  label_map <- setNames(label_df$label, label_df$sequence_id)
+  
+  # Also we need start_percent for labeling
+  #   => from results, we can pick the "match_start_percent" for each sequence_id
+  #   => but that was aggregated (the min). We'll store that in a small vector:
+  start_map <- tapply(results$match_start_percent, results$sequence_id, unique)
+  # also pick an ID for each sequence_id, for where we place the label
+  # ideally we can pick the FIRST row that has that sequence_id
+  # or the min ID. We'll do the min ID approach:
+  id_map <- tapply(results$id, results$sequence_id, min)
+  
+  # Some sequence_ids might not appear => handle that with NA
+  # or 0 if no matches
+  # We'll do a quick fix:
+  seq_ids_in_results <- unique(results$sequence_id)
+  seq_label_data <- data.frame(
+    sequence_id          = seq_ids_in_results,
+    match_start_percent  = as.numeric(start_map[as.character(seq_ids_in_results)]),
+    label_id             = as.numeric(id_map   [as.character(seq_ids_in_results)]),
+    label                = label_map[as.character(seq_ids_in_results)],
+    stringsAsFactors     = FALSE
+  )
+  
+  #
+  # 7) Build the color palette (one color per unique sequence)
+  #
+  #   For sequences that don't appear, we don't need a color.
+  #
+  seq_used <- sort(unique(results_binned$sequence_id))
+  num_used <- length(seq_used)
+  
+  if (num_used > 8) {
+    colors_list <- colorRampPalette(RColorBrewer::brewer.pal(8, "Accent"))(num_used)
+  } else {
+    colors_list <- RColorBrewer::brewer.pal(max(3, num_used), "Accent")[1:num_used]
+  }
+  
+  # Map from sequence_id -> color
+  color_mapping <- setNames(colors_list, seq_used)
+  
+  #
+  # 8) Base R Plot
+  #
+  
+  max_id <- max(df$id)
+  
+  # Blank plot region
+  #  y from top=1 to bottom=max_id => c(max_id+0.5, 0.5)
+  plot(
+    1, 1, 
+    type = "n",
+    xlim = c(0, 120),
+    ylim = c(max_id + 0.5, 0.5),  # invert y
+    axes = FALSE,
+    xlab = "Oligopaint length",
+    ylab = "Oligopaint number in library",
+    main = ""
+  )
+  
+  # Minimal axes
+  axis(side = 1, at = seq(0, 120, 20))
+  axis(side = 2, at = seq(0, max_id, by = 5000))
+  box(bty = "n")  # no bounding box
+  
+  # 8A) Draw 12 vertical stripes for the background
+  bin_values <- seq(0, 110, by = 10)
+  for (bv in bin_values) {
+    rect(
+      xleft   = bv,
+      ybottom = 0.5,
+      xright  = bv + 10,
+      ytop    = max_id + 0.5,
+      col     = "#EAEAEA",
+      border  = NA
+    )
+  }
+  
+  # 8B) Draw the matched bins in one vectorized call
+  xleft   <- results_binned$bins
+  xright  <- results_binned$bins + 10
+  ybottom <- results_binned$id - 0.5
+  ytop    <- results_binned$id + 0.5
+  fillcol <- color_mapping[results_binned$sequence_id]
+  
+  rect(
+    xleft, ybottom, xright, ytop,
+    col = fillcol, border = NA
+  )
+  
+  # 8C) Add text labels for each distinct sequence_id
+  #     We place it at (match_start_percent, label_id)
+  #     with a small offset so it appears left-aligned and slightly above
+  if (nrow(seq_label_data) > 0) {
+    text(
+      x      = seq_label_data$match_start_percent,
+      y      = seq_label_data$label_id,
+      labels = seq_label_data$label,
+      adj    = c(0, 1.2),
+      cex    = 0.8
+    )
+  }
+  
+  # Return data invisibly
+  invisible(list(matches = results_binned))
+}
+
+
+
+start <- Sys.time()
+find_and_plot_matches(df, query_df)$'plot'
+Sys.time() - start
