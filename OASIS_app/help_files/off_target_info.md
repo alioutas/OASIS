@@ -1,6 +1,0 @@
----
-title: "Off Target Score"
-output: html_document
----
-
-**Off-Target Score: One important component of [PaintSHOP](http://www.paintshop.io) is the Homology Optimization Pipeline (HOP). The pipeline is used when creating new probe sets to create an on-target and off-target score for every probe identified. We have developed a machine learning model to approximate nucleic acid thermodynamics. For the on-target score, the model is used to score the likelihood (0-100) that a probe is likely to hybridize at its intended target. For the off-target score, we start by searching for up to 100 possible alignments for each candidate probe. Any candidate with greater than 100 possible alignments is discarded. Next, we use our model to generate a score for the likelihood of hybridization at each possible site. We sum these scores, generating an off-target score between 0 and 10,000. By default, [PaintSHOP](http://www.paintshop.io) sets the default maximum off-target score to 200. The off-target score slider can be used to make this value more or less stringent, depending on the experiment. The probe table and density plot will dynamically update, providing information on how the parameters chosen affect the probe set.**
