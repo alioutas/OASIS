@@ -131,7 +131,7 @@ ui <- fluidPage(
   br(),
   h6(icon("info-circle"), "To start from scratch, refresh the webpage.", icon("info-circle"), "After any modification press the corresponding button to apply the changes."),
   add_busy_bar(color = "#F1C232", height ="12px"),
-  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.8</span>')),  #, tags$b("OASIS")
+  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.9</span>')),  #, tags$b("OASIS")
              
              
              ########################################################################################################
@@ -324,7 +324,7 @@ ui <- fluidPage(
                                      checkboxInput(inputId = "same_BS1", "Backstreet 1 same as Mainstreet 1", FALSE)),
                                    conditionalPanel(
                                      condition = "input.streets.includes('bs2')",
-                                     fileInput(inputId = "BS2", "Choose Back Street 2", multiple = FALSE,
+                                     fileInput(inputId = "BS2", "Choose Backstreet 2", multiple = FALSE,
                                                accept = c(
                                                  "text/csv",
                                                  "text/comma-separated-values,text/plain",
@@ -449,21 +449,21 @@ ui <- fluidPage(
                                    shinyjs::hidden(
                                      div(id = "advanced",
                                          h5("For advanced users ONLY", style="color:white ; background-color:#f16232; font-weight: bold; text-align: center"),
-                                         # fileInput(inputId = "coor_filter", "Coordinates Oligopaints-free", multiple = FALSE,
-                                         #           accept = c(
-                                         #             "text/csv",
-                                         #             "text/comma-separated-values,text/plain",
-                                         #             ".csv",
-                                         #             ".bed"))%>%
-                                         #   helper(type = "inline",
-                                         #          title = "Select what to append on Oligopaints:",
-                                         #          icon = "info-circle",
-                                         #          colour = "#C0C0C0",
-                                         #          # ATTN
-                                         #          content = "Upload a .bed file ('chr', 'start', 'end') with the coordinates where you would not want any coverage by Oligopaints. This is useful when combining a new design with an existing one or if you would like to use Homologue Specific Oligopaints (HOPs). Another example is if you would like to expand an already existing Oligopaints library.",
-                                         #          size = "m",
-                                         #          buttonLabel = "Done"),
-                                         # hr(),
+                                         fileInput(inputId = "coor_filter", "Coordinates Oligopaints-free", multiple = FALSE,
+                                                   accept = c(
+                                                     "text/csv",
+                                                     "text/comma-separated-values,text/plain",
+                                                     ".csv",
+                                                     ".bed"))%>%
+                                           helper(type = "inline",
+                                                  title = "Select what to append on Oligopaints:",
+                                                  icon = "info-circle",
+                                                  colour = "#C0C0C0",
+                                                  # ATTN
+                                                  content = "Upload a .bed file containing 'chr', 'start', and 'end' coordinates where you want to avoid Oligopaints coverage. This is useful for combining with existing designs, using Homologue Specific Oligopaints (HOPs), or expanding an Oligopaints library.",
+                                                  size = "m",
+                                                  buttonLabel = "Done"),
+                                         hr(),
                                          uiOutput("dynamic_street_select"),
                                          shinyjs::hidden(div(id = "dynamic_density_select",
                                          numericInput(inputId = "filter_density", "Oligopaints/Kb density threshold" ,value = NA, min = 0.1,step = 0.1)%>%
@@ -997,12 +997,17 @@ ui <- fluidPage(
                              splitLayout(
                                numericInput("avoid_from", label = "From:", value = 0, step = 1),
                                numericInput("avoid_to", label = "To:", value = 0, step = 1)),
-                             fileInput(inputId = "avoid_os_seq", "OligoSTORM barcodes to AVOID", multiple = F,
-                                       accept = c(
-                                         "text/csv",
-                                         "text/comma-separated-values,text/plain",
-                                         ".csv",
-                                         ".bed")),
+                               textInput( 
+                                 "avoid_os_seq", 
+                                 "OligoSTORM barcodes to AVOID", 
+                                 placeholder = "Example: 1,2,4,8,12"
+                               ), 
+                             # fileInput(inputId = "avoid_os_seq", "OligoSTORM barcodes to AVOID", multiple = F,
+                             #           accept = c(
+                             #             "text/csv",
+                             #             "text/comma-separated-values,text/plain",
+                             #             ".csv",
+                             #             ".bed")),
                              fileInput(inputId = "custom_os_seq", "Custom OligoSTORM barcodes", multiple = F,
                                        accept = c(
                                          "text/csv",
@@ -1036,11 +1041,11 @@ ui <- fluidPage(
                              # textInput(inputId = "custom_ofq_seq", "Custom OligoFISSEQ bits ", #multiple = F,
                              #           value = paste(c("GGTCT", "TGGTC", "AGTCA", "CGCTC"), collapse = ", ")),
                              br(),
-                             # h3("lambdaFISH", id = "h3_white"),
-                             # h5("lambdaFISH bits"),
-                             # actionButton("reset_lambda", "Default lambdaFISH values"),
-                             # DTOutput("lambda_seq_table"),
-                             # br(),
+                             h3("lambdaFISH", id = "h3_white"),
+                             h5("lambdaFISH bits"),
+                             actionButton("reset_lambda", "Default lambdaFISH values"),
+                             DTOutput("lambda_seq_table"),
+                             br(),
                              # 
                              # actionButton("filter_barcodes", "Filter Barcodes",
                              #              style="position:center; left: 25%; right: 25%; color: #000; background-color: #F1C232; border-color: #000",
@@ -1157,7 +1162,8 @@ ui <- fluidPage(
                                              "OASIS Appended Library Report" = "report",
                                              "Oligopaints order file"="oligopaints_order", 
                                              "Bridges and Toes" = "bridges_download", 
-                                             "Amplification Primers" = "amplification_download" ),
+                                             "Amplification Primers" = "amplification_download",
+                                             "Whole design datatable" = "all_df"),
                                  options = list(
                                    `actions-box` = TRUE), 
                                  multiple = TRUE
@@ -1301,23 +1307,37 @@ server <- function(input, output, session) {
   
   # filter Oligopaints based on user input as to repeats, off-target score, max k-mer
   oligopaints_data <- reactive({
-    temp <- tempfile()
-    download.file(default_oligopaints[default_oligopaints$Name == input$organism_oligopaints, "link"], temp, mode = "wb")
-    unzip(temp, exdir = tempdir())
-    file <- list.files(tempdir(), pattern = "\\.tsv$", full.names = TRUE)
-    
-    DT <- fread(file)
-    setnames(DT, old = c("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11"), 
-             new = c("chr", "start", "end", "sequence", "Tm", "on_target", "off_target", "is_repeat", "prob", "max_kmer", "probe_strand"))
-    
-    DT <- DT[off_target <= input$off_target_score & 
-         max_kmer <= input$k_mer_count & 
-         is_repeat != as.numeric(input$avoid_repeats)]
-    
-    # free up some RAM
-    unlink(temp)
-    return(DT)
-    
+    withProgress(message = 'Downloading data', value = 0, {
+      
+      # Step 1: Download and unzip file
+      incProgress(0.2, detail = "Downloading file...")
+      temp <- tempfile()
+      download.file(default_oligopaints[default_oligopaints$Name == input$organism_oligopaints, "link"], temp, mode = "wb")
+      
+      incProgress(0.3, detail = "Unzipping file...")
+      unzip(temp, exdir = tempdir())
+      file <- list.files(tempdir(), pattern = "\\.tsv$", full.names = TRUE)
+      
+      # Step 2: Read and process file
+      incProgress(0.4, detail = "Reading file...")
+      DT <- fread(file)
+      setnames(DT, old = c("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11"), 
+               new = c("chr", "start", "end", "sequence", "Tm", "on_target", "off_target", "is_repeat", "prob", "max_kmer", "probe_strand"))
+      
+      incProgress(0.6, detail = "Filtering data...")
+      DT <- DT[off_target <= input$off_target_score & 
+                 max_kmer <= input$k_mer_count & 
+                 is_repeat != as.numeric(input$avoid_repeats)]
+      
+      # Free up some RAM
+      incProgress(0.8, detail = "Cleaning up...")
+      unlink(temp)
+      
+      # Return data and finish progress
+      incProgress(1, detail = "Done.")
+      return(DT)
+      
+    })
   }) %>% bindCache(input$organism_oligopaints, input$off_target_score, input$k_mer_count, input$avoid_repeats)
   
   # Use bindEvent to trigger the reactive expression
@@ -1468,7 +1488,7 @@ server <- function(input, output, session) {
   })
   
   # Check whether the user has not uploaded all the necessary bed files. If so, show a notification.
-  observeEvent(c(input$new_op, input$append), {
+  observeEvent(c(input$op_new, input$op_intersected), {
     
     # crosscheck the streets and intersected_streets selected and the bed files uploaded 
     # if the user has selected a street without uploading a file, then the file is NULL
@@ -1476,22 +1496,48 @@ server <- function(input, output, session) {
     
     # create a list with the uploaded bed files
     bed_list <- NULL
-    bed_list <- list(uni_ms = if(!is.null(input$UNI_ms) && "uni_ms" %in% input$streets) 1 else 0,
-                     uni_bs = if(!is.null(input$UNI_bs) && "uni_bs" %in% input$streets) 1 else 0,
-                     ms1 = if(!is.null(input$MS1) && "ms1" %in% input$streets) 1 else 0,
-                     ms2 = if(!is.null(input$MS2) && "ms2" %in% input$streets)  1 else 0,
-                     bs1 = if(!is.null(input$BS1) && "bs1" %in% input$streets)  1 else 0,
-                     bs2 = if(!is.null(input$BS2) && "bs2" %in% input$streets)  1 else 0
-    ) %>% unlist()
-    
-    if(length(input$streets) != sum(bed_list)){
-      showModal(modalDialog(
-        title = "Missing files!",
-        "You have not uploaded all the necessary bed files for the selected streets.",
-        easyClose = F
+    if (input$op_select == 'new'){
+      bed_list <- list(uni_ms = if(!is.null(input$UNI_ms) && "uni_ms" %in% input$streets) 1 else 0,
+                       uni_bs = if(!is.null(input$UNI_bs) && "uni_bs" %in% input$streets) 1 else 0,
+                       ms1 = if(!is.null(input$MS1) && "ms1" %in% input$streets) 1 else 0,
+                       ms2 = if(!is.null(input$MS2) && "ms2" %in% input$streets)  1 else 0,
+                       bs1 = if(!is.null(input$BS1) && "bs1" %in% input$streets)  1 else 0,
+                       bs2 = if(!is.null(input$BS2) && "bs2" %in% input$streets)  1 else 0
+      ) %>% unlist()
+      
+      
+      if(length(input$streets) != sum(bed_list)){
+        showModal(modalDialog(
+          title = "Missing files!",
+          "You have not uploaded all the necessary bed files for the selected streets.",
+          easyClose = F
         )
-      )
-    } 
+        )
+      } 
+    }  
+    
+    if (input$op_select == 'intersected'){
+     
+      bed_list <- list(uni_ms = if(!is.null(input$intersected_UNI_ms) && "intersected_uni_ms" %in% input$intersected_streets) 1 else 0,
+                       uni_bs = if(!is.null(input$intersected_UNI_bs) && "intersected_uni_bs" %in% input$intersected_streets) 1 else 0,
+                       ms1 = if(!is.null(input$intersected_MS1) && "intersected_ms1" %in% input$intersected_streets) 1 else 0,
+                       ms2 = if(!is.null(input$intersected_MS2) && "intersected_ms2" %in% input$intersected_streets)  1 else 0,
+                       bs1 = if(!is.null(input$intersected_BS1) && "intersected_bs1" %in% input$intersected_streets)  1 else 0,
+                       bs2 = if(!is.null(input$intersected_BS2) && "intersected_bs2" %in% input$intersected_streets)  1 else 0
+      ) %>% unlist()
+      
+      
+      if(length(input$intersected_streets) != sum(bed_list)){
+        showModal(modalDialog(
+          title = "Missing files!",
+          "You have not uploaded all the necessary bed files for the selected streets.",
+          easyClose = F
+        )
+        )
+      } 
+    }
+    
+
 
   })
   
@@ -1531,10 +1577,18 @@ server <- function(input, output, session) {
   
   # create a common dataframe that holds either the already intersected or the newly intersected OPs
   comb_ops <- reactive({
+    
+    progress <- Progress$new(session, min=0, max=1)
+    on.exit(progress$close())
+
+    
     # Create list with uploaded bed files
     
     bed_list <- NULL
     
+    progress$set(message = 'Intersecting genomic coordinates',
+                 detail = 'Pulling uploaded files together...',
+                 value = 0.2)
     # get all available bedfiles
     if(input$op_select == "new"){
       bed_list <- list(uni_ms = if(!is.null(input$UNI_ms)) tibble(fread(input$UNI_ms$datapath[1]) %>% select(1:4)%>% 
@@ -1578,14 +1632,14 @@ server <- function(input, output, session) {
     #   bed_list <- NULL
     # }
     # 
-    
-    
+
     print("combined uploaded beds")
+
     
     # combine all the available bed files
     
     if(input$op_select == "new" & !is.null(bed_list)){
-      print("Started intersects")
+
       # select the dataframes that do not contain "_i_" in the name of the list
       # rename the columns to contain the name of the street
       # intersect them 
@@ -1597,30 +1651,49 @@ server <- function(input, output, session) {
       #intersect all bed files between them
       isected <- NULL
       isected_names <- NULL
+      isected_ops <- NULL
       
       if(length(bed_list) > 1){
         print("Pulling bedlist together")
+        progress$set(message = 'Intersecting genomic coordinates',
+                     detail = 'This may take a while... up to 2 minutes...',
+                     value = 0.6)
         
+        isected_ops <- intersect_coordinates_cli(x = filtered_oligopaints(), y_list=bed_list)
         
-        isected <- intersect_coordinates(bed_list[[2]], bed_list[[1]]) %>% 
-          { `if`(length(bed_list) >= 3, intersect_coordinates(., bed_list[[3]]), . ) } %>%
-          { `if`(length(bed_list) >= 4, intersect_coordinates(., bed_list[[4]]), . ) } %>%
-          { `if`(length(bed_list) >= 5, intersect_coordinates(., bed_list[[5]]), . ) } %>%
-          { `if`(length(bed_list) >= 6, intersect_coordinates(., bed_list[[6]]), . ) } 
+        print("Started intersects")
+
+        
+        # isected <- intersect_coordinates_cli(bed_list[[2]], bed_list[[1]], tempfile(fileext = ".bed")) %>%
+        #   { `if`(length(bed_list) >= 3, intersect_coordinates_cli(., bed_list[[3]], tempfile(fileext = ".bed")), . ) } %>%
+        #   { `if`(length(bed_list) >= 4, intersect_coordinates_cli(., bed_list[[4]], tempfile(fileext = ".bed")), . ) } %>%
+        #   { `if`(length(bed_list) >= 5, intersect_coordinates_cli(., bed_list[[5]], tempfile(fileext = ".bed")), . ) } %>%
+        #   { `if`(length(bed_list) >= 6, intersect_coordinates_cli(., bed_list[[6]], tempfile(fileext = ".bed")), . ) }
+        # 
+        print(isected)
         
         print("Pulling bedlist Names together")
-        isected_names <- c(names(bed_list[[1]]), names(bed_list[[2]])) %>% 
-          { `if`(length(bed_list) >= 3, c(names(bed_list[[3]]), .), . ) } %>% 
-          { `if`(length(bed_list) >= 4, c(names(bed_list[[4]]), .), . ) } %>% 
-          { `if`(length(bed_list) >= 5, c(names(bed_list[[5]]), .), . ) } %>% 
-          { `if`(length(bed_list) >= 6, c(names(bed_list[[6]]), .), . ) }
+        filtered_oligopaints <- filtered_oligopaints() #%>% slice_sample(n =5000) %>% arrange(chr, start)
+        
+        isected_names <- c(names(filtered_oligopaints), sapply(bed_list, names))
+        
+        # isected_names <- c(names(filtered_oligopaints), 
+        #   names(bed_list[[1]]), names(bed_list[[2]])) %>% 
+        #   { `if`(length(bed_list) >= 3, c(names(bed_list[[3]]), .), . ) } %>% 
+        #   { `if`(length(bed_list) >= 4, c(names(bed_list[[4]]), .), . ) } %>% 
+        #   { `if`(length(bed_list) >= 5, c(names(bed_list[[5]]), .), . ) } %>% 
+        #   { `if`(length(bed_list) >= 6, c(names(bed_list[[6]]), .), . ) }
         
         print("Pulled bedlist Names together")
-        print(isected)
-        names(isected)
+        print(isected_ops)
+        names(isected_ops)
         length(isected_names)
         print(isected_names)
-        names(isected) <- isected_names
+        names(isected_ops) <- isected_names
+        
+        progress$set(message = 'Intersecting genomic coordinates',
+                     detail = 'Pulling files together...',
+                     value = 0.8)
         
         # START DELETE
         # for(i in 1:(length(bed_list)-1)){
@@ -1632,6 +1705,11 @@ server <- function(input, output, session) {
         # }
         # END DELETE
       } else if(length(bed_list) == 1){
+        
+        progress$set(message = 'Intersecting genomic coordinates',
+                     detail = 'This may take a while... up tp 2 minutes...',
+                     value = 0.6)
+        
         df <- bed_list[[1]][1:4]
         names_df <- names(df)
         chr_df <- unique(df[[names_df[1]]])
@@ -1645,36 +1723,51 @@ server <- function(input, output, session) {
           
         }
         isected <- df
+        # intersect all bedfiles to ops
+        filtered_oligopaints <- filtered_oligopaints() #%>% slice_sample(n =5000) %>% arrange(chr, start)
+        isected_ops <- RBedtools(tool = 'intersect',
+                                 options = '-wa -wb', #'-loj'
+                                 a=from_data_frame(isected), #RBedtools(tool = 'sort', i=from_data_frame(isected)
+                                 b=from_data_frame(filtered_oligopaints)) %>% #RBedtools(tool = 'sort', i=from_data_frame(filtered_oligopaints))
+          to_data_frame%>% 
+          `colnames<-`(c(names(isected), names(filtered_oligopaints))) 
+        print("Intersected and renamed")
+        
       }
+
       
-      print("Pulled bedlist together")
-      
-      # intersect all bedfiles to ops
-      filtered_oligopaints <- filtered_oligopaints() #%>% slice_sample(n =5000) %>% arrange(chr, start)
-      isected_ops <- RBedtools(tool = 'intersect',
-                               options = '-wa -wb', #'-loj'
-                               a=from_data_frame(isected), #RBedtools(tool = 'sort', i=from_data_frame(isected)
-                               b=from_data_frame(filtered_oligopaints)) %>% #RBedtools(tool = 'sort', i=from_data_frame(filtered_oligopaints))
-        to_data_frame%>% 
-        `colnames<-`(c(names(isected), names(filtered_oligopaints))) 
-      print("Intersected and renamed")
+      # # intersect all bedfiles to ops
+      # filtered_oligopaints <- filtered_oligopaints() #%>% slice_sample(n =5000) %>% arrange(chr, start)
+      # isected_ops <- RBedtools(tool = 'intersect',
+      #                          options = '-wa -wb', #'-loj'
+      #                          a=from_data_frame(isected), #RBedtools(tool = 'sort', i=from_data_frame(isected)
+      #                          b=from_data_frame(filtered_oligopaints)) %>% #RBedtools(tool = 'sort', i=from_data_frame(filtered_oligopaints))
+      #   to_data_frame%>% 
+      #   `colnames<-`(c(names(isected), names(filtered_oligopaints))) 
+      # print("Intersected and renamed")
       # EXTRA 
       # select non duplicate columns
       #isected_ops <- isected_ops[,grep("....[0-9]$", names(isected_ops))]
       #isected_ops <- isected_ops[,!str_detect(names(isected_ops), "....[0-9]")]
       #isected_ops <- select(isected_ops, -contains("..."))
-      isected_ops <- isected_ops %>% select(any_of(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms",
-                                                     "chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs",
-                                                     "chr_ms1","start_ms1", "end_ms1", "id_ms1",
-                                                     "chr_ms2","start_ms2", "end_ms2", "id_ms2",
-                                                     "chr_bs1","start_bs1", "end_bs1", "id_bs1",
-                                                     "chr_bs2","start_bs2", "end_bs2", "id_bs2",
-                                                     names(filtered_oligopaints))))
+      if(!is.null(isected_ops)){
+        isected_ops <- isected_ops %>% select(any_of(c("chr_uni_ms","start_uni_ms", "end_uni_ms", "id_uni_ms",
+                                                       "chr_uni_bs","start_uni_bs", "end_uni_bs", "id_uni_bs",
+                                                       "chr_ms1","start_ms1", "end_ms1", "id_ms1",
+                                                       "chr_ms2","start_ms2", "end_ms2", "id_ms2",
+                                                       "chr_bs1","start_bs1", "end_bs1", "id_bs1",
+                                                       "chr_bs2","start_bs2", "end_bs2", "id_bs2",
+                                                       names(filtered_oligopaints))))
+      }
+
       
       #names(isected_ops) <- c(Reduce(c, map(bed_list, names)), names(filtered_oligopaints()))
       #names(isected_ops) <- c(names(isected), names(filtered_oligopaints()))
       
       print("Finished intersects")
+      progress$set(message = 'Intersecting genomic coordinates',
+                   detail = 'Pulling files together...',
+                   value = 1)
       
     } else if(input$op_select == "intersected" && !is.null(bed_list)){
       isected_ops <- Reduce(full_join, bed_list)
@@ -1686,42 +1779,6 @@ server <- function(input, output, session) {
         isected_ops <- NULL
       }
     }
-    
-    # # FIX
-    # # remove OPs from coordinates that should be OPs-free
-    # if (!is.null(input$coor_filter)){
-    #   coor_filter <- tibble(fread(input$coor_filter$datapath))
-    #   
-    #   if (ncol(coor_filter) >= 3){
-    #     coor_filter <- coor_filter %>% select(1:3) %>%
-    #       `colnames<-`(c("chr","start", "end"))
-    #     
-    #     # Ensure that both data frames are not empty
-    #     if (nrow(comb_ops()) > 0 && nrow(coor_filter) > 0) {
-    #       DT <- intersect_coordinates( y = oligopaints_data(), x = coor_filter, correct_coor = T, .options = '-v')
-    # 
-    #       names(DT) <- c(names(coor_filter), names(oligopaints_data()))
-    #       print(DT)
-    #       
-    #       # return(as.data.frame(DT))
-    #     } else {
-    #       # Handle the case where one of the data frames is empty
-    #       showModal(modalDialog(
-    #         title = "Error",
-    #         "One of the data frames (DT or coor_filter) is empty.",
-    #         easyClose = TRUE,
-    #         footer = NULL
-    #       ))
-    #     }
-    #   } else {
-    #     showModal(modalDialog(
-    #       title = "Error",
-    #       "The file you uploaded is not correct. Please make sure your file has three columns: chr, start and end.",
-    #       easyClose = TRUE,
-    #       footer = NULL
-    #     ))
-    #   }
-    # } 
     
 
     
@@ -1801,15 +1858,98 @@ server <- function(input, output, session) {
     
   }) %>% 
     bindEvent(input$op_intersected,
-              input$op_new)
+              input$op_new,
+              input$filter_ops)
   
   
   # homogenize the density of OPs if the user has inputted a density target input$filter_density
   # also filter the regions that the user defined as OPs-free
   comb_ops_f <- reactive({
-    
-    if(!is.na(input$filter_density)){
+    tryCatch({
+      comb_ops <- comb_ops()
+      print(head(comb_ops()))
+      comb_ops_names <- names(comb_ops)
       
+      # Ensure that input$coor_filter is available
+      if (!is.null(input$coor_filter)) {
+        # Attempt to read the file uploaded as coor_filter
+        coor_tofilter <- tryCatch({
+          tibble(fread(input$coor_filter$datapath))
+        }, error = function(e) {
+          showModal(modalDialog(
+            title = "Error",
+            "Failed to read the uploaded file.",
+            easyClose = TRUE,
+            footer = NULL
+          ))
+          return(NULL)
+        })
+        
+        if (!is.null(coor_tofilter)) {
+          print("coor_tofilter")
+          print(coor_tofilter)
+          
+          if (ncol(coor_tofilter) >= 3) {
+            # Select the first three columns and rename them
+            coor_tofilter <- coor_tofilter %>% select(1:3) %>%
+              `colnames<-`(c("chr", "start", "end"))
+            
+            # Ensure both dataframes have data
+            if (nrow(comb_ops) > 0 && nrow(coor_tofilter) > 0) {
+              print("nrow comb_ops before:")
+              print(nrow(comb_ops))
+              
+              # Call intersect_coordinates_cli
+              comb_ops_f <- intersect_coordinates_cli(x = comb_ops, y_list = list(coor_tofilter), option = "-v")
+              print("nrow comb_ops after:")
+              print(nrow(comb_ops_f))
+              names(comb_ops_f) <- comb_ops_names
+              print(head(comb_ops_f))
+              
+              if (nrow(comb_ops_f) == 0) {
+                showModal(modalDialog(
+                  title = "Error",
+                  "The coordinates do not match any entries. Please check your input.",
+                  easyClose = TRUE,
+                  footer = NULL
+                ))
+                return(comb_ops)
+              } else {
+                return(comb_ops_f)
+              }
+            } else {
+              showModal(modalDialog(
+                title = "Error",
+                "One of the data frames (comb_ops or coor_tofilter) is empty.",
+                easyClose = TRUE,
+                footer = NULL
+              ))
+              return(comb_ops)
+            }
+          } else {
+            showModal(modalDialog(
+              title = "Error",
+              "The file you uploaded does not have the required three columns: chr, start, and end.",
+              easyClose = TRUE,
+              footer = NULL
+            ))
+            return(comb_ops)
+          }
+        }
+      }
+      return(comb_ops)  # Default return value
+    }, error = function(e) {
+      showModal(modalDialog(
+        title = "Unexpected Error",
+        paste("An error occurred: ", e$message),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+      return(comb_ops)  # Return comb_ops in case of an unexpected error
+    })
+      
+      
+    if(!is.null(input$filter_density)) {
       #define the column name to homogenize the density of OPs
       street_to_select <- switch(input$selected_street,
                                  "intersected_uni_ms" = "id_uni_ms",
@@ -1826,7 +1966,7 @@ server <- function(input, output, session) {
                                  "bs2" = "id_bs2")
       
       # function that homogenizes the density of OPs
-      comb_ops() %>% 
+      comb_ops <- comb_ops %>% 
         drop_na() %>% 
         arrange(chr, start) %>% 
         group_by(chr) %>% 
@@ -1853,13 +1993,9 @@ server <- function(input, output, session) {
         }) %>%
         bind_rows() %>%
         arrange(chr, start)
-
       
-      
-      
-      # return(isected_ops)
-    } else {
-      comb_ops() 
+      return(comb_ops)
+      print(comb_ops)
     }
       
   }) %>% 
@@ -3390,7 +3526,11 @@ server <- function(input, output, session) {
   ### import from google drive toe sequences for OligoSTORM of the selected organism
   toes <- reactive({
     
+    if(!is.null(input$custom_os_seq)){
+      read_csv(input$custom_os_seq$datapath[1], col_names = "toes")
+    } else{
     read_csv(os_toes_barcodes[os_toes_barcodes$Name == {input$organism}, 'link'], col_names = "toes")
+    }
     # switch(input$organism,
     #        # "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = gsheet2tbl('https://drive.google.com/open?id=1cxeKxa8F3NDK7M856R_dAnWPXlWu8Fda6BwFoHt-whE'),
     #        "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = read_csv(os_toes_barcodes[os_toes_barcodes$Name == {input$organism}, 'link'], col_names = "toes"),
@@ -3403,7 +3543,11 @@ server <- function(input, output, session) {
   ### import from google drive street sequences for OligoSTORM of the selected organism
   streets <- reactive({
     
-    read_csv(os_street_barcodes[os_street_barcodes$Name == input$organism, 'link'], col_names = "streets")
+    if(!is.null(input$custom_os_seq)){
+      read_csv(input$custom_os_seq$datapath[1], col_names = "streets")
+    } else{
+      read_csv(os_street_barcodes[os_street_barcodes$Name == input$organism, 'link'], col_names = "streets")
+    }
     # switch(input$organism,
     #        # "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = gsheet2tbl('https://drive.google.com/open?id=1tkQkwv90Hfy9FmcP0fotZ3tXTEq4BUDG9yGmq3coQ1Y'),
     #        "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = read_csv(os_street_barcodes[os_street_barcodes$Name == input$organism, 'link'], col_names = "streets"),
@@ -3428,7 +3572,16 @@ server <- function(input, output, session) {
   
   matched_streets <- reactive({
     
+    if(!is.null(input$custom_os_seq)){
+      read_csv(input$custom_os_seq$datapath[1], col_names = "streets") %>% 
+        mutate(main = rownames_to_column(), 
+               key = lag(main),
+               value = 1) %>% 
+        drop_na() %>% 
+        select(main, key, value)
+    } else{
     read_csv(os_matched_streets[os_matched_streets$Name == {input$organism}, 'link'], col_names = T)
+    }
     # switch(input$organism,
     #        # "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = gsheet2tbl('https://drive.google.com/open?id=1Eh9ot2QJk35dw6b941g4Dqo5v-AEcXvltQKM572h7Xo'),
     #        "3K - hg38 mm10 dm6 wuhCor1 loxafr3 ce11" = read_csv(os_matched_streets[os_matched_streets$Name == {input$organism}, 'link'], col_names = T),
@@ -3665,10 +3818,22 @@ server <- function(input, output, session) {
   
   
   available_os_barcodes <- reactive({
-    #input$append
-    #isolate(
-    setdiff(1:nrow(streets()), input$avoid_from:input$avoid_to)
-    #)
+    # Calculate initial set difference from 'streets' dataset
+    bc_out <- setdiff(1:nrow(streets()), input$avoid_from:input$avoid_to)
+    
+    # Check and convert input$avoid_os_seq if it's present and not empty
+    if (!is.null(input$avoid_os_seq) && nzchar(input$avoid_os_seq)) {
+      # Convert the string to a numeric vector
+      avoid_os_seq_vector <- as.numeric(unlist(strsplit(input$avoid_os_seq, ",")))
+      
+      # Remove any NA values that might result from conversion errors
+      avoid_os_seq_vector <- avoid_os_seq_vector[!is.na(avoid_os_seq_vector)]
+      
+      # return vector with removed elements
+      bc_out <- setdiff(bc_out, avoid_os_seq_vector)
+    }
+    
+    return(bc_out)
   })
   
   
@@ -3773,6 +3938,8 @@ server <- function(input, output, session) {
 
     # multiplex_df_out <- Reduce(left_join, multiplex_list)
     
+    print(length(available_os_barcodes))
+    
     start <- Sys.time()
     uni_pairs <- create_pairs(data = comb_ops, 
                               ms_input = input$append_streets_uni_ms, 
@@ -3786,7 +3953,8 @@ server <- function(input, output, session) {
                               .matched_streets = matched_streets(),
                               input_ofq_bits = input_sec_ofq_reactive(), 
                               input_lambda_bits = input_sec_lambda_reactive(), 
-                              bs_rc = F)  
+                              bs_rc = F,
+                              match_primer_pair = TRUE)  
      
     if(!is.null(input$append_streets_uni_ms) && !is.null(input$append_streets_uni_bs)){
       uni_pairs_out <- right_join(tibble(uni_pairs$df), comb_ops, by = c("uni_ms" = "id_uni_ms", "uni_bs" = "id_uni_bs"))
@@ -3796,7 +3964,9 @@ server <- function(input, output, session) {
       uni_pairs_out <- right_join(tibble(uni_pairs$df), comb_ops, by = c("uni_bs" = "id_uni_bs"))
     }
     
-    print(paste("uni_pairs:", start - Sys.time()))
+    print(paste("uni_pairs:", Sys.time() - start))
+    
+    length(uni_pairs[["available_barcodes"]])
     
     start <- Sys.time()
     street1_pairs <- create_pairs(data = comb_ops,
@@ -3811,7 +3981,8 @@ server <- function(input, output, session) {
                                   .matched_streets = matched_streets(),
                                   input_ofq_bits = input_sec_ofq_reactive(), 
                                   input_lambda_bits = input_sec_lambda_reactive(), 
-                                  bs_rc = F)
+                                  bs_rc = F,
+                                  match_primer_pair = FALSE)
     
     if(!is.null(input$append_streets_ms1) && !is.null(input$append_streets_bs1)){
       street1_pairs_out <- right_join(tibble(street1_pairs$df), comb_ops, by = c("ms1" = "id_ms1", "bs1" = "id_bs1"))
@@ -3822,7 +3993,9 @@ server <- function(input, output, session) {
     }
 
     
-    print(paste("street_1 pairs:", start - Sys.time()))
+    print(paste("street_1 pairs:", Sys.time() - start))
+    length(street1_pairs[["available_barcodes"]])
+    
     
     start <- Sys.time()
     
@@ -3838,7 +4011,8 @@ server <- function(input, output, session) {
                                   .matched_streets = matched_streets(),
                                   input_ofq_bits = input_sec_ofq_reactive(),
                                   input_lambda_bits = input_sec_lambda_reactive(), 
-                                  bs_rc = F)
+                                  bs_rc = F,
+                                  match_primer_pair = FALSE)
     
     if(!is.null(input$append_streets_ms2) && !is.null(input$append_streets_bs2)){
       street2_pairs_out <- right_join(tibble(street2_pairs$df), comb_ops, by = c("ms2" = "id_ms2", "bs2" = "id_bs2"))
@@ -3848,23 +4022,25 @@ server <- function(input, output, session) {
       street2_pairs_out <- right_join(tibble(street2_pairs$df), comb_ops, by = c("bs2" = "id_bs2"))
     }
 
-    print(paste("street_2 pairs:", start - Sys.time()))
+    print(paste("street_2 pairs:", Sys.time() - start))
+    # length(street2_pairs[["available_barcodes"]])
     
     start <- Sys.time()
     #list_out <- list(uni_pairs_out, street1_pairs)
    
-
-    pairs_list <- list(uni = if(!is.null(input$append_streets_uni_ms)  || !is.null(input$append_streets_uni_bs))  uni_pairs_out else NULL,
-                     ms = if(!is.null(input$append_streets_ms1)  || !is.null(input$append_streets_bs1))  street1_pairs_out else NULL,
-                     bs = if(!is.null(input$append_streets_ms2)  || !is.null(input$append_streets_bs2))  street2_pairs_out else NULL) %>%
+    pairs_list <- list(
+      uni = if (!is.null(input$append_streets_uni_ms)  || !is.null(input$append_streets_uni_bs)) uni_pairs_out else NULL,
+      ms = if (!is.null(input$append_streets_ms1)  || !is.null(input$append_streets_bs1)) street1_pairs_out else NULL,
+      bs = if (!is.null(input$append_streets_ms2)  || !is.null(input$append_streets_bs2)) street2_pairs_out else NULL
+    ) %>%
       compact()
-
+    
     barcoded_df_out <- Reduce(left_join, pairs_list)
     
-    print(paste("Create pairs list:", start - Sys.time()))
+    print(paste("Create pairs list:", Sys.time() - start))
     
     start <- Sys.time()
-    # Step 1: Create the appended_oligopaint column using base R
+    
     
     # Initialize appended_oligopaint with base structures
     barcoded_df_out$appended_oligopaint <- ""
@@ -3886,7 +4062,7 @@ server <- function(input, output, session) {
     }
     
     # Append segments based on conditions specified
-    barcoded_df_out$appended_oligopaint <- paste0(
+    barcoded_df_out$appended_oligopaint <- str_c(
       append_segments(barcoded_df_out, input$append_streets_uni_ms, "uni_ms_toe", "uni_ms_street"),
       append_segments(barcoded_df_out, input$append_streets_ms2, "ms2_toe", "ms2_street", "ms2_ofq_seq_primer", "ms2_ofq_barcode"),
       append_segments(barcoded_df_out, input$append_streets_ms1, "ms1_toe", "ms1_street", "ms1_ofq_seq_primer", "ms1_ofq_barcode"),
@@ -3896,7 +4072,7 @@ server <- function(input, output, session) {
       append_segments(barcoded_df_out, input$append_streets_uni_bs, "uni_bs_toe", "uni_bs_street")
     )
 
-    print(paste("Append pairs list:", start - Sys.time()))
+    print(paste("Append pairs list:", Sys.time() - start))
     
 
     # barcoded_df_out %>% 
@@ -4384,10 +4560,11 @@ server <- function(input, output, session) {
        !("lambdaFISH" %in% input$append_streets_bs2)) {
      return(NULL)
    } else {
+     print(sapply(bridges(), names))
      bridges() %>% 
        map(~ if(!is.null(.x)) {
          .x %>% 
-           select(contains("bridge_lambdaFISH"))
+           select(contains("bridge_lambdaFISH"))#, contains("_num"))
        } else {
          NULL
        }) %>% 
@@ -4728,33 +4905,33 @@ ops_organism <- reactive({
 
 # create a plot and save it as a png file
   
-
+# 
 # myPlot <- reactive({
 #   query_df <- tibble(query_seq = character(), query_name = character())
-#   
+# 
 #   column_names_id <- c('uni_ms', 'uni_bs', 'ms1', 'ms2', 'bs1', 'bs2')
 #   column_names_seq <- c('street_target_seq', 'ms1_ofq_seq_primer', 'ms2_ofq_seq_primer', 'bs1_ofq_seq_primer', 'bs2_ofq_seq_primer')
-#   
+# 
 #   for (i in seq_along(bridges())) {
-#     
+# 
 #     bridge_data <- bridges()[[i]]
 #     available_col <- names(bridge_data)[names(bridge_data) %in% column_names_id][1]
 #     available_seq_col <- names(bridge_data)[names(bridge_data) %in% column_names_seq][1]
-#     
-#     
+# 
+# 
 #     query_seq <- bridge_data[[available_seq_col]]
 #     query_name <- bridge_data[[available_col]]
 # 
 #     query_df_temp <- tibble(query_seq = query_seq, query_name = query_name)
 #     query_df <- bind_rows(query_df, query_df_temp)
 #   }
-#   
+# 
 #   df <- as_tibble(appended_oligopaints()['appended_oligopaint'], row_names = c('appended_oligopaint'))
 #   # return(df)
-#   
+# 
 #   find_and_plot_matches(df = df, query_df = query_df)['plot']
-#   
-# }) %>% 
+# 
+# }) %>%
 #   bindEvent(input$append)
 # 
 # output$myPlot <- renderPlot({
@@ -4780,7 +4957,7 @@ ops_organism <- reactive({
       params = list(
         bridges = bridges(),
         amp_primers = amp_primers(),
-        # order_file = myPlot(),
+        # order_file = appended_oligopaints()["appended_oligopaint"],
         valuebox_data = valuebox_data(),
         valuebox_data_dist = valuebox_data_dist(),
         ops_organism = ops_organism()
@@ -4799,6 +4976,12 @@ ops_organism <- reactive({
       # Create a temporary directory to store the files
       temp_dir <- tempdir()
       temp_files <- list()
+      
+      if("all_df" %in% input$download_files){
+        all_file <- file.path(temp_dir, "OASIS_all_datatable.csv")
+        write.csv(appended_oligopaints(), all_file, row.names = FALSE, col.names = T)
+        temp_files <- c(temp_files, all_file)
+      }
       
       if ("ops_only" %in% input$download_files) {
         ops_file <- file.path(temp_dir, "intersected_oligopaints_NOappending.csv")
@@ -4833,7 +5016,7 @@ ops_organism <- reactive({
       }
       
       
-      if ("oligopaints_order" %in% input$download_files && is.null(lambda_bridges_lib())) {
+      if ("oligopaints_order" %in% input$download_files) {
         oligo_file <- file.path(temp_dir, "OASIS_OPs_order.csv")
         write.csv(appended_oligopaints()["appended_oligopaint"], oligo_file, row.names = FALSE, col.names = FALSE)
         temp_files <- c(temp_files, oligo_file)

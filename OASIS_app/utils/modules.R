@@ -25,6 +25,7 @@ appened_opsServer <- function(id,
     
     
     # TODO
+    # when similar bc are appended then only the first chromosome appears make sure that the rest are shown in the summary tables
     # fix the new read in of streets (toes and matched streets seem to work well)
     # select the OPs before appending to save as a seperate file
     # make secondary sequences appear at side panel if "toe_seq_im", "seq_im" are selected
@@ -32,7 +33,7 @@ appened_opsServer <- function(id,
     # move the sec and 405 right above the append barcodes button
     # probability of similar barcode for nearby regions
     # multiplex_list_out make sure it depends on available OFQ and lambda inputs
-    # to OFQ add sequencing primers sequences
+    # to OFQ add custom sequencing primers sequences
 
     
     
@@ -58,6 +59,10 @@ appened_opsServer <- function(id,
     # BUG: when pressing clear filters the total number of OPs does not update in the value box
     # BUG: when pressing clear filter the number of OPs should go back to the original number for comb_ops()
     # allow for users to upload their oligopaints file 
+    # Add start and end coordinates to summary table
+    # add progress bar for "new" (maybe 4 steps: downloading, merging different groups, intersecting, making summaries)
+    
+    
     
     
     
@@ -105,9 +110,22 @@ appened_opsServer <- function(id,
           ) %>%
           mutate(
             street_target_seq = street,
-            bridge_to_order = ifelse(bs_rc,
-                                     str_c(ifelse(append_actsec, rc(input_actsec_seq), ""), rc(secondary_seq), rc(toe)),
-                                     str_c(rc(toe), ifelse(append_actsec, rc(input_actsec_seq), ""), rc(secondary_seq))),
+            bridge_to_order = {
+                if (exists("bs_rc") && bs_rc) {
+                  sec = rc(secondary_seq)
+                  str = rc(toe)
+                  actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
+                  paste0(actsec, sec, str)
+                } else {
+                  str = rc(toe)
+                  actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
+                  sec = rc(secondary_seq)
+                  paste0(str, actsec, sec)
+                }
+              },
+              # ifelse(bs_rc,
+              #                        str_c(ifelse(append_actsec, rc(input_actsec_seq), ""), rc(secondary_seq), rc(toe)),
+              #                        str_c(rc(toe), ifelse(append_actsec, rc(input_actsec_seq), ""), rc(secondary_seq))),
             toe_to_order = toe
           ) %>% 
           select(contains("chr") | contains("start") | contains("end") | 
@@ -139,9 +157,24 @@ appened_opsServer <- function(id,
           mutate(street = get(names(.)[str_detect(names(.), pattern = "street")][1]),
                  toe = get(names(.)[str_detect(names(.), pattern = "toe")][1])) %>%
           mutate(street_target_seq = toe,
-                 bridge_to_order = ifelse(bs_rc,
-                                          str_c(ifelse(append_actsec, rc(input_actsec_seq), "") ,rc(secondary_seq), rc(street)),
-                                          str_c(rc(street),ifelse(append_actsec, rc(input_actsec_seq), "") ,rc(secondary_seq))),
+                 bridge_to_order = {
+                   if (exists("bs_rc") && bs_rc) {
+                     sec = rc(secondary_seq)
+                     str = rc(street)
+                     actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
+                     paste0(actsec, sec, str)
+                   } else {
+                     str = rc(street)
+                     actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
+                     sec = rc(secondary_seq)
+                     paste0(str, actsec, sec)
+                   }
+                 },
+                   # 
+                   # 
+                   # ifelse(bs_rc,
+                   #                        str_c(ifelse(append_actsec, rc(input_actsec_seq), "") ,rc(secondary_seq), rc(street)),
+                   #                        str_c(rc(street),ifelse(append_actsec, rc(input_actsec_seq), "") ,rc(secondary_seq))),
                  toe_to_order = rc(toe)) %>% 
           select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) | 
                    "secondary" | "secondary_seq" | "street_target_seq" | contains("num") | "bridge_to_order"| "toe_to_order")
@@ -258,7 +291,7 @@ appened_opsServer <- function(id,
 
 
         data_streets <- data_streets %>%
-          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) 
+          select(contains("chr") | contains("start") | contains("end") | any_of(c("uni_ms", "uni_bs", "ms1","ms2","bs1","bs2")) | any_of(c("n", "size_kb", "density_kb")) #contains("num") |
                  | street_target_seq | contains("_lambdaFISH_key")
                  | contains("bridge_lambdaFISH") | contains("toe_lambdaFISH")
                  | contains("_FWD_primer_lambdaFISH") | contains("_REV_primer_lambdaFISH") | contains("_primer_lambdaFISHtoe")
