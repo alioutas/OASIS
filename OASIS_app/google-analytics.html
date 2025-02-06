@@ -1,0 +1,57 @@
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QHKVKDPF1N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-QHKVKDPF1N');
+
+  $(document).on('change', 'select', function(e) {
+    gtag('event', 'widget', {
+      action: ' Upload',
+      label: $(e.currentTarget).val()
+    });
+  });
+  
+  $(document).on('change', 'select', function(e) {
+    gtag('event', 'widget', {
+      action: ' Barcodes',
+      label: $(e.currentTarget).val()
+    });
+  });
+
+  $(document).on('change', 'select', function(e) {
+    gtag('event', 'widget', {
+      action: ' Download',
+      label: $(e.currentTarget).val()
+    });
+  });
+  
+  $(document).on('click', 'button', function() {
+    gtag('event', 'button', { action: 'op_new' });
+  });
+  
+  $(document).on('click', 'button', function() {
+    gtag('event', 'button', { action: 'op_intersected' });
+  });
+  
+    $(document).on('click', 'button', function() {
+    gtag('event', 'button', { action: 'filter_ops' });
+  });
+  
+  $(document).on('click', 'button', function() {
+    gtag('event', 'button', { action: 'append' });
+  });
+  
+    $(document).on('click', 'button', function() {
+    gtag('event', 'button', { action: 'reset_sec' });
+  });
+  
+    $(document).on('click', 'button', function() {
+    gtag('event', 'button', { action: 'download_zip_files' });
+  });
+  
+  
+  
+</script>
