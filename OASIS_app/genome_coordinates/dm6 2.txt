@@ -1,8 +1,0 @@
-chr	start	end	cent_start	cent_end
-chr2L	1	23513712	0	0
-chr2R	1	25286936	0	0
-chr3L	1	28110227	0	0
-chr3R	1	32079331	0	0
-chr4	1	1348131	0	0
-chrX	1	23542271	0	0
-chrY	1	3667352	0	0
