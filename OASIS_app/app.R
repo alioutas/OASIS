@@ -1758,7 +1758,11 @@ server <- function(input, output, session) {
                                                        "chr_ms2","start_ms2", "end_ms2", "id_ms2",
                                                        "chr_bs1","start_bs1", "end_bs1", "id_bs1",
                                                        "chr_bs2","start_bs2", "end_bs2", "id_bs2",
+<<<<<<< HEAD
                                                        names(filtered_oligopaints)))) 
+=======
+                                                       names(filtered_oligopaints))))
+>>>>>>> origin/main
       }
 
       
@@ -1781,6 +1785,10 @@ server <- function(input, output, session) {
       }
     }
     
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
     
     return(isected_ops)
     
@@ -1866,7 +1874,11 @@ server <- function(input, output, session) {
   # also filter the regions that the user defined as OPs-free
   comb_ops_f <- reactive({
     tryCatch({
+<<<<<<< HEAD
       comb_ops <- comb_ops() 
+=======
+      comb_ops <- comb_ops()
+>>>>>>> origin/main
       print(head(comb_ops()))
       comb_ops_names <- names(comb_ops)
       
@@ -1995,6 +2007,10 @@ server <- function(input, output, session) {
         arrange(chr, start)
       
       return(comb_ops)
+<<<<<<< HEAD
+=======
+      print(comb_ops)
+>>>>>>> origin/main
     }
       
   }) %>% 

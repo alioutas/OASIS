@@ -6,6 +6,7 @@ library(purrr)
 library(stringi)
 library(RColorBrewer)
 library(parallel)
+<<<<<<< HEAD
 library(plotly)
 
 # Reverse complement DNA sequence   -------------------------------------------------------------------
@@ -34,6 +35,10 @@ rc <- function (z)
   names(res) <- tmpnames
   return(res)
 }
+=======
+
+
+>>>>>>> origin/main
 # import data
 
 # df <- read_csv('/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/HMS/genome_project/WGI2_lib/output/WGI2.0/WGI2.0_appended_ops_steps1_13_ORDER.txt', col_names = 'ops')
@@ -67,6 +72,7 @@ rc <- function (z)
 # query_df <- tibble(query_seq, query_name)
 
 
+<<<<<<< HEAD
 # df <- read_tsv("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/collaborations/Maria-Elena\ Torres\ Padilla/20250126_iLADs/output/chr10_mm10_LAD_iLAD_Oligopaints_order.txt", col_names = F)
 # names(df) <- "appended_oligopaint"
 # query_df <- read_tsv("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/collaborations/Maria-Elena\ Torres\ Padilla/20250126_iLADs/output/chr10_mm10_LAD_iLAD_Oligopaints_barcodes.txt", col_names = F )
@@ -111,6 +117,17 @@ rc <- function (z)
 # write_delim(df,"/Users/alioutas/Google Drive/My Drive/1.Projects/GitHub/demo_data/df.tsv" ,delim = "\t", col_names = T)
 # write_delim(query_df,"/Users/alioutas/Google Drive/My Drive/1.Projects/GitHub/demo_data/query_df.tsv" ,delim = "\t", col_names = T)
 
+=======
+# df <- read_csv("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/genome_project/WGI3_lib/output/WGI3_0_OASIS_output_2025-01-22/OASIS_all_datatable.csv") %>% select(appended_oligopaint) %>% distinct(appended_oligopaint)
+# query_df <- read_csv("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/genome_project/WGI3_lib/output/WGI3_0_OASIS_output_2025-01-22/bs2_bridges_toes.csv") %>% select(bs2, street_target_seq)
+# names(query_df) <- c("query_name", "query_seq")
+# 
+# 
+# df <- read_tsv("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/collaborations/Maria-Elena\ Torres\ Padilla/20250126_iLADs/output/chr10_mm10_LAD_iLAD_Oligopaints_order.txt", col_names = F)
+# names(df) <- "appended_oligopaint"
+# query_df <- read_tsv("/Users/alioutas/Library/CloudStorage/GoogleDrive-alioutas@gmail.com/My\ Drive/2.Areas/HMS/collaborations/Maria-Elena\ Torres\ Padilla/20250126_iLADs/output/chr10_mm10_LAD_iLAD_Oligopaints_barcodes.txt", col_names = F ) 
+# names(query_df) <- c("query_seq","query_name")
+>>>>>>> origin/main
 
 find_and_plot_matches <- function(df, query_df) {
   numberOfCores <- ceiling(detectCores()*0.75)
@@ -162,6 +179,7 @@ find_and_plot_matches <- function(df, query_df) {
   out_coords_list <- mclapply(query_df$query_seq, process_query, mc.cores = numberOfCores)
   
   remove_jumps <- function(df){
+<<<<<<< HEAD
 
   query_seq_temp <- unique(df$query_seq)
    df %>%
@@ -172,6 +190,18 @@ find_and_plot_matches <- function(df, query_df) {
      mutate(query_seq = query_seq_temp)
   }
 
+=======
+    
+  query_seq_temp <- unique(df$query_seq)
+   df %>% 
+      arrange(y_start) %>% 
+      mutate(distance = y_end - y_start) %>% 
+      filter(distance <50) %>% 
+      summarize(start = min(start), end = max(end), y_start = min(y_start), y_end = max(y_end)) %>% 
+     mutate(query_seq = query_seq_temp)
+  }
+  
+>>>>>>> origin/main
   for(i in seq_along(out_coords_list)){
     if(nrow(out_coords_list[[i]]) > 1){
       out_coords_list[[i]] <-  remove_jumps(df = out_coords_list[[i]])
@@ -182,7 +212,10 @@ find_and_plot_matches <- function(df, query_df) {
   
   # Combine results into a single tibble
   out_coords <- bind_rows(out_coords_list)
+<<<<<<< HEAD
   out_coords <- left_join(out_coords, query_df, by = "query_seq")
+=======
+>>>>>>> origin/main
   
   # Check for matches
   if (!nrow(out_coords)) {
@@ -207,14 +240,20 @@ find_and_plot_matches <- function(df, query_df) {
   out_coords$end <- out_coords$end * max_length
   
   # Prepare label coordinates
+<<<<<<< HEAD
   label_coords_seq <- out_coords %>%
     group_by(query_seq, query_name) %>%
+=======
+  label_coords <- out_coords %>%
+    group_by(query_seq) %>%
+>>>>>>> origin/main
     summarise(
       x = mean(start + end) / 2,
       y = max(y_end) - ((y_end - y_start) * 0.25),
       .groups = 'drop'
     )
   
+<<<<<<< HEAD
   label_coords_id <- out_coords %>%
     group_by(query_seq, query_name) %>%
     summarise(
@@ -223,16 +262,25 @@ find_and_plot_matches <- function(df, query_df) {
       .groups = 'drop'
     )
   
+=======
+>>>>>>> origin/main
   # Create the plot
   p <- ggplot(data = out_coords, aes(x = (start + end) / 2, y = (y_start + y_end) / 2)) +
     geom_tile(aes(width = end - start, height = y_end - y_start, fill = query_seq), color = "white") +
     scale_fill_manual(values = color_mapping) +
     geom_text(aes(label = (y_end - y_start) + 1), size = 2, color = "black") +
+<<<<<<< HEAD
     geom_text(data = label_coords_seq, aes(x = x, y = y, label = query_seq), size = 1, vjust = 0) +
     geom_text(data = label_coords_id, aes(x = x, y = y, label = query_name), size = 2, vjust = 0) +
     labs(x = "Oligopaint length", y = "Oligopaint number in the library") +
     theme_minimal() +
     scale_x_continuous(limits = c(0, max_length))+
+=======
+    geom_text(data = label_coords, aes(x = x, y = y, label = query_seq), size = 3, vjust = 0) +
+    labs(x = "Oligopaint length", y = "Oligopaint number in the library") +
+    theme_minimal() +
+    scale_x_continuous(limits = c(min(out_coords$start), max(out_coords$end)))+
+>>>>>>> origin/main
     theme(legend.position = "none")
   
   # Return plot invisibly
@@ -240,7 +288,13 @@ find_and_plot_matches <- function(df, query_df) {
 }
 
 
+<<<<<<< HEAD
 # start <- Sys.time()
 # p <- find_and_plot_matches(df, query_df =query_df )$'plot'
 # ggplotly(p)
+=======
+# 
+# start <- Sys.time()
+# find_and_plot_matches(df, query_df)$'plot'
+>>>>>>> origin/main
 # Sys.time() - start
