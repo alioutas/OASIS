@@ -131,7 +131,7 @@ ui <- fluidPage(
   br(),
   h6(icon("info-circle"), "To start from scratch, refresh the webpage.", icon("info-circle"), "After any modification press the corresponding button to apply the changes."),
   add_busy_bar(color = "#F1C232", height ="12px"),
-  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.9</span>')),  #, tags$b("OASIS")
+  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.10</span>')),  #, tags$b("OASIS")
              
              
              ########################################################################################################
