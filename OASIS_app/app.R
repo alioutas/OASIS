@@ -466,7 +466,7 @@ ui <- fluidPage(
                                          hr(),
                                          uiOutput("dynamic_street_select"),
                                          shinyjs::hidden(div(id = "dynamic_density_select",
-                                         numericInput(inputId = "filter_density", "Oligopaints/Kb density threshold" ,value = NA, min = 0.1,step = 0.1)%>%
+                                         numericInput(inputId = "filter_density", "Oligopaints/Kb density threshold" ,value = 0, min = 0.1,step = 0.1)%>%
                                            helper(type = "inline",
                                                   title = "Select Oligopaints/Kb density threshold:",
                                                   icon = "info-circle",
@@ -1866,7 +1866,17 @@ server <- function(input, output, session) {
   # homogenize the density of OPs if the user has inputted a density target input$filter_density
   # also filter the regions that the user defined as OPs-free
   comb_ops_f <- reactive({
-    tryCatch({
+    
+    print(paste("filter_density: ", input$filter_density))
+    
+    if (is.null(input$filter_density) || is.na(input$filter_density)){
+      filter_density <- 0
+    } else {
+      filter_density <- input$filter_density
+    }
+
+    # tryCatch({
+    req(comb_ops())
       comb_ops <- comb_ops()
 
       print(head(comb_ops()))
@@ -1939,67 +1949,72 @@ server <- function(input, output, session) {
           }
         }
       }
-      return(comb_ops)  # Default return value
-    }, error = function(e) {
-      showModal(modalDialog(
-        title = "Unexpected Error",
-        paste("An error occurred: ", e$message),
-        easyClose = TRUE,
-        footer = NULL
-      ))
-      return(comb_ops)  # Return comb_ops in case of an unexpected error
-    })
+      # return(comb_ops)  # Default return value
+    # }, error = function(e) {
+    #   showModal(modalDialog(
+    #     title = "Unexpected Error",
+    #     paste("An error occurred: ", e$message),
+    #     easyClose = TRUE,
+    #     footer = NULL
+    #   ))
+    #   return(comb_ops)  # Return comb_ops in case of an unexpected error
+    # })
       
       
-    if(!is.null(input$filter_density)) {
-      #define the column name to homogenize the density of OPs
-      street_to_select <- switch(input$selected_street,
-                                 "intersected_uni_ms" = "id_uni_ms",
-                                 "uni_ms" = "id_uni_ms",
-                                 "intersected_uni_bs" = "id_uni_bs",
-                                 "uni_bs" = "id_uni_bs",
-                                 "intersected_ms1" = "id_ms1",
-                                 "ms1" = "id_ms1",
-                                 "intersected_ms2" = "id_ms2",
-                                 "ms2" = "id_ms2",
-                                 "intersected_bs1" = "id_bs1",
-                                 "bs1" = "id_bs1",
-                                 "intersected_bs2" = "id_bs2",
-                                 "bs2" = "id_bs2")
-      
-      # function that homogenizes the density of OPs
-      comb_ops <- comb_ops %>% 
-        drop_na() %>% 
-        arrange(chr, start) %>% 
-        group_by(chr) %>% 
-        group_modify(~ { 
-          .x %>% 
-            mutate(distance = start - lag(end, default = 0)) %>% 
-            mutate(distance = replace_na(distance, 0))
-        }) %>%
-        filter(between(distance, 0, 1000000)) %>%
-        ungroup() %>%
-        group_by(chr, !!sym(street_to_select)) %>%
-        group_split() %>%
-        map(~ {
-          # Calculation of size_chunk and n_probes
-          size_chunk <- max(.x$end) - min(.x$start)
-          n_probes <- round((size_chunk/1000) * input$filter_density, 0)
-          
-          # Check if there are enough rows and positive weights
-          if(n_probes > 0 && nrow(.x) >= n_probes && any(.x$distance > 0)) {
-            slice_sample(.x, n = min(n_probes, nrow(.x)), weight_by = .x$distance)
-          } else {
-            .x  # Return the data as is if conditions are not met
-          }
-        }) %>%
-        bind_rows() %>%
-        arrange(chr, start)
-      
-      return(comb_ops)
-      print(comb_ops)
+    # if(!is.null(input$filter_density)) {
+      if(filter_density >= 1) {
+        #define the column name to homogenize the density of OPs
+        street_to_select <- switch(input$selected_street,
+                                   "intersected_uni_ms" = "id_uni_ms",
+                                   "uni_ms" = "id_uni_ms",
+                                   "intersected_uni_bs" = "id_uni_bs",
+                                   "uni_bs" = "id_uni_bs",
+                                   "intersected_ms1" = "id_ms1",
+                                   "ms1" = "id_ms1",
+                                   "intersected_ms2" = "id_ms2",
+                                   "ms2" = "id_ms2",
+                                   "intersected_bs1" = "id_bs1",
+                                   "bs1" = "id_bs1",
+                                   "intersected_bs2" = "id_bs2",
+                                   "bs2" = "id_bs2")
+        
+        # function that homogenizes the density of OPs
+        comb_ops <- comb_ops %>% 
+          drop_na() %>% 
+          arrange(chr, start) %>% 
+          group_by(chr) %>% 
+          group_modify(~ { 
+            .x %>% 
+              mutate(distance = start - lag(end, default = 0)) %>% 
+              mutate(distance = replace_na(distance, 0))
+          }) %>%
+          filter(between(distance, 0, 1000000)) %>%
+          ungroup() %>%
+          group_by(chr, !!sym(street_to_select)) %>%
+          group_split() %>%
+          map(~ {
+            # Calculation of size_chunk and n_probes
+            size_chunk <- max(.x$end) - min(.x$start)
+            n_probes <- round((size_chunk/1000) * filter_density, 0)
+            
+            # Check if there are enough rows and positive weights
+            if(n_probes > 0 && nrow(.x) >= n_probes && any(.x$distance > 0)) {
+              slice_sample(.x, n = min(n_probes, nrow(.x)), weight_by = .x$distance)
+            } else {
+              .x  # Return the data as is if conditions are not met
+            }
+          }) %>%
+          bind_rows() %>%
+          arrange(chr, start)
+        print("Density filter applied!")
+        print(comb_ops)
+        return(comb_ops)
+      } else{
+        return(comb_ops)
+      }
+  
 
-    }
+    # }
       
   }) %>% 
     bindEvent(input$filter_ops)
@@ -4393,6 +4408,7 @@ server <- function(input, output, session) {
     appended_oligopaints() %>% select(contains("uni_ms")) %>% 
       group_by(chr_uni_ms, uni_ms) %>% 
       mutate(n = n(), size_kb = round((max(end_uni_ms) - min(start_uni_ms))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       ungroup()
        #left_join(stats_tables()["summary_uni_ms"], by = c("uni_ms" = "id_uni_ms"))
   })%>%
@@ -4401,7 +4417,8 @@ server <- function(input, output, session) {
   appended_oligopaints_uni_bs <- reactive({
     appended_oligopaints() %>% select(contains("uni_bs"))%>% 
       group_by(chr_uni_bs, uni_bs) %>% 
-      mutate(n = n(), size_kb = round((max(end_uni_bs) - min(start_uni_bs))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      mutate(n = n(), size_kb = round((max(end_uni_bs) - min(start_uni_bs))/1000), density_kb = round(n/size_kb, digits =1)) %>%       
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       ungroup()
   })%>%
     bindEvent(input$append)
@@ -4410,6 +4427,7 @@ server <- function(input, output, session) {
     appended_oligopaints() %>% select(contains("ms1"))%>% 
       group_by(chr_ms1, ms1) %>% 
       mutate(n = n(), size_kb = round((max(end_ms1) - min(start_ms1))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       ungroup()
   })%>%
     bindEvent(input$append)
@@ -4418,6 +4436,7 @@ server <- function(input, output, session) {
     appended_oligopaints() %>% select(contains("ms2"))%>% 
       group_by(chr_ms2, ms2) %>% 
       mutate(n = n(), size_kb = round((max(end_ms2) - min(start_ms2))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       ungroup()
   })%>%
     bindEvent(input$append)
@@ -4426,6 +4445,7 @@ server <- function(input, output, session) {
     appended_oligopaints() %>% select(contains("bs1"))%>% 
       group_by(chr_bs1, bs1) %>% 
       mutate(n = n(), size_kb = round((max(end_bs1) - min(start_bs1))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       ungroup()
   })%>%
     bindEvent(input$append)
@@ -4434,6 +4454,7 @@ server <- function(input, output, session) {
     appended_oligopaints() %>% select(contains("bs2"))%>% 
       group_by(chr_bs2, bs2) %>% 
       mutate(n = n(), size_kb = round((max(end_bs2) - min(start_bs2))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       ungroup()
   })%>%
     bindEvent(input$append)
@@ -4642,14 +4663,17 @@ server <- function(input, output, session) {
       if(!is.null(df)) {
         df <- df %>% 
           group_by(chr,across(contains("id"))) %>% 
-          summarise(n = n(), size_kb = round((max(end) - min(start))/1000), density_kb = round(n/size_kb, digits =1))
+          summarise(n = n(), size_kb = round((max(end) - min(start))/1000), density_kb = round(n/size_kb, digits =1)) %>% 
+          # if there is an inf or NA in the density_kb column then make it a 0
+          mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb))
+          
         
         
         updateSliderInput(session, "filter_density",
-                          min = min(df$density_kb, na.rm = TRUE),
+                          min = min(df$density_kb[df$density_kb > 0], na.rm = TRUE),
                           max = max(df$density_kb, na.rm = TRUE),
                           label = paste("Oligopaints/Kb density threshold \n", 
-                                        "min:", min(df$density_kb, na.rm = TRUE), "max:", max(df$density_kb, na.rm = TRUE)))
+                                        "min:", min(df$density_kb[df$density_kb > 0], na.rm = TRUE), "max:", max(df$density_kb, na.rm = TRUE)))
       }
     }
 

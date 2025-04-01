@@ -1321,6 +1321,7 @@ make_summary <- function(df) {
     df %>% 
       group_by(chr,across(contains("id")), across(starts_with("start_")), across(starts_with("end_"))) %>% 
       summarise(n = n(), size_kb = round((max(end) - min(start))/1000), density_kb = round(n/size_kb, digits =1)) %>%
+      mutate(density_kb = ifelse(is.infinite(density_kb) | is.na(density_kb), 0, density_kb)) %>% 
       print(n = Inf),
     extensions = c('Scroller','FixedColumns'), options = list(
       deferRender = FALSE,
