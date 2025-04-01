@@ -1,0 +1,343 @@
+---
+title: "" #"OASIS Appended Library Report"
+author: ""
+date: "`r format(Sys.Date(), '%Y.%m.%d')`"
+output: html_document
+params:
+  bridges: NA
+  toes: NA
+  amp_primers: NA
+  order_file: NA
+  intersected_ops_OASIS: NA
+  valuebox_data: NA
+  valuebox_data_dist: NA
+  ops_organism: NA
+---
+
+
+```{r setup, include=FALSE}
+#    encoding: UTF-8
+
+knitr::opts_chunk$set(echo = TRUE)
+require(tidyverse)
+require(DT)
+require(kableExtra)
+library(RColorBrewer)
+library(ggplot2)
+
+# print all the datatables that are in the list params$bridges
+bridge_names <- c(uni_ms_appended = "Universal Mainstreet",
+                  uni_bs_appended = "Universal Backstreet",
+                  ms1_appended = "Mainstreet 1",
+                  ms2_appended = "Mainstreet 2",
+                  bs1_appended = "Backstreet 1",
+                  bs2_appended = "Backstreet 2")
+
+# get all the names of the columns of all dataframes within the params$bridges list
+bridges_colnames <- c(unlist(sapply(params$bridges, colnames)))
+```
+
+
+
+### Oligopaints library appended sequences overview
+
+#### 1. Oligopaints Library
+* We typically order the library from Twist (www.twistbioscience.com) use the file: OASIS_OPs_order.txt
+
+Oligopaints melting temperatures 
+```{r temp_box, echo = F, warning=F, results='asis'}
+# Value box information creation
+
+    data <- density(params$valuebox_data, na.rm = TRUE)
+    
+    hover_text <- paste("Tm: ", round(data$x,2),"°C", "<br>Frequency: ", round(data$y, 2))
+    
+    sparkline<- plot_ly(x = data$x, y = data$y, type = 'scatter', mode = 'lines',
+            text = hover_text, hoverinfo = 'text') %>%
+      add_lines(
+      # x = ~x, y = ~y,
+      color = I("#F1C232"), span = I(1),
+      fill = 'tozeroy', alpha = 1
+    ) %>%
+    layout(
+      showlegend = FALSE,
+      xaxis = list(visible = T, showgrid = F, title = "Tm °C"),
+      yaxis = list(visible = F, showgrid = F, title = "Frequency"),
+      hovermode = "closest",
+      margin = list(t = 0, r = 0, l = 0, b = 0),
+      font = list(color = "black"),
+      paper_bgcolor = "transparent",
+      plot_bgcolor = "transparent"
+    ) %>%
+    config(displayModeBar = F) %>%
+    htmlwidgets::onRender(
+      "function(el) {
+      var ro = new ResizeObserver(function() {
+         var visible = el.offsetHeight > 200;
+         Plotly.relayout(el, {'xaxis.visible': visible});
+      });
+      ro.observe(el);
+    }"
+    )
+
+
+value_box(
+ title = "Total Oligopaints",
+ value = length(params$valuebox_data) ,
+ p("Mean Tm ", round(mean(params$valuebox_data, na.rm = TRUE), 2), "°C", "\n","Median Tm", round(median(params$valuebox_data, na.rm = TRUE), 2), "°C"),
+ # showcase = icon("dna")
+ showcase = sparkline,
+ full_screen = TRUE,
+)
+```
+
+
+Inter Oligopaints Genomic distances
+```{r dist_box, echo = F, warning=F, results='asis'}
+
+# Value box information creation
+
+    data <- density(params$valuebox_data_dist, na.rm = TRUE)
+    
+    hover_text <- paste("Genomic distance: ", round(data$x,2),
+                        "<br>Frequency: ", round(data$y, 2))
+    
+    sparkline_dist<- plot_ly(x = data$x, y = data$y, type = 'scatter', mode = 'lines',
+            text = hover_text, hoverinfo = 'text') %>%
+      add_lines(
+      # x = ~x, y = ~y,
+      color = I("#F1C232"), span = I(1),
+      fill = 'tozeroy', alpha = 1
+    ) %>%
+    layout(
+      showlegend = FALSE,
+      xaxis = list(visible = F, showgrid = F, title = "Distance (log)", type = "log"),
+      yaxis = list(visible = F, showgrid = F, title = "Frequency"),
+      hovermode = "closest",
+      margin = list(t = 0, r = 0, l = 0, b = 0),
+      font = list(color = "black"),
+      paper_bgcolor = "transparent",
+      plot_bgcolor = "transparent"
+    ) %>%
+    config(displayModeBar = F) %>%
+    htmlwidgets::onRender(
+      "function(el) {
+      var ro = new ResizeObserver(function() {
+         var visible = el.offsetHeight > 200;
+         Plotly.relayout(el, {'xaxis.visible': visible});
+      });
+      ro.observe(el);
+    }"
+    )
+    
+
+value_box(
+ title = "Mean Inter Oligopaints genomic distance",
+ value = round(mean(params$valuebox_data_dist, na.rm = TRUE)),
+ p("Median distance", round(median(params$valuebox_data_dist, na.rm = TRUE))),
+ # showcase = icon("dna")
+ showcase = sparkline_dist,
+ full_screen = TRUE,
+)
+```
+
+
+### Barcodes appended overview
+```{r barcode_plot, echo = F, warning=F, results='asis'}
+# p <- get(params$order_file)
+# p
+# query_seq <- c('GATCGGGTCCCACAACCACG', #43
+#                'GTGCCAGGCAACCCGTACAG', #44
+#                 'GAACGGCGTCACGCTGAGAG', #45
+#                'CGACCGGACACACCTCCTCC', #46
+#                'CTATCAGGGCAACCCGCAGG') #47
+# 
+# 
+# query_name <- c('This_is_43This_is_43This_is_43',
+#                 'This_is_44This_is_44This_is_44',
+#                 'This_is_45This_is_45This_is_45',
+#                 'This_is_46This_is_46This_is_46',
+#                 'This_is_47This_is_47This_is_47')
+# 
+# query_df <- tibble(query_seq, query_name)
+# 
+# 
+# p <- find_and_plot_matches(df, query_df)['plot']
+
+# This code chunk will be evaluated if 'plot' is not passed as a parameter.
+# if (is.null(params$order_file)) {
+#     cat("Plot is NULL")
+# } else {
+#   p <- params$order_file
+#     renderPlot(p)
+# }
+
+
+```
+
+
+
+### Reagents to Order
+
+#### 2. Oligopaints library amplification primers (5' to 3')
+*Suggested order for Forward primers: 250 nmole, desalt, TE buffer pH 8.0 @200µM.*
+*Suggested order for Reverse primers: 250 nmole, desalt, TE buffer pH 8.0 @200µM.*
+Amplification primers are usually ordered from IDT.
+
+
+```{r primers, echo = F, warning=F, results='asis'} 
+
+
+if(all(c("FWD_primers_out", "REV_primers_out") %in% names(params$amp_primers))) {
+  cat("\n\n#### Universal Oligopaints library amplification Forward and Reverse primers \n\n")
+  cat("\n")
+  
+  print(knitr::kable(params$amp_primers$FWD_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
+  print(knitr::kable(params$amp_primers$REV_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
+} else if ("FWD_primers_out" %in% names(params$amp_primers) && !("REV_primers_out" %in% names(params$amp_primers))) {
+  cat("<span style='color: red;'>**Warning: **You did not choose any universal Reverse primers. You will not be able to amplify this library by PCR.</span>\n\n")
+  cat("\n\n#### Universal Oligopaints library Forward primers \n\n")
+  print(knitr::kable(params$amp_primers$FWD_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")))
+
+} else if (!("FWD_primers_out" %in% names(params$amp_primers)) && "REV_primers_out" %in% names(params$amp_primers)) {
+  cat("<span style='color: red;'>**Warning: **You did not choose any universal Forward primers. You will not be able to amplify this library by PCR.</span>\n\n")
+  cat("\n\n#### Universal Oligopaints library Reverse primers \n\n")
+  print(knitr::kable(params$amp_primers$REV_primers_out)%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")))
+
+} else {
+  cat("<span style='color: red;'>**Warning: **You did not choose any Universal primers. You will not be able to amplify this library by PCR.</span>")
+}
+
+```
+
+
+
+#### 3. Bridge and Toe
+*Suggested Bridge order: 1 µmole, desalt, TE buffer pH 8.0 @200 µM.*
+
+Bridge will bind to their complementary streets on the primary Oligopaints library after FISH. Based on the chosen design of your library you can use up to 5 different fluorophores.
+
+
+
+*Suggested Toe order: 1 µmole, desalt, TE buffer pH 8.0 @200 µM.*
+
+Toes will remove the bridge (together with the secondary) if you chose "Sequential OligoSTORM". If you chose OligoSTORM the toe will bind to your primary Oligopaints and this barcode will not longer be available for revisiting. 
+
+For more details: Walking along chromosomes as described in Nir, Farabella, Perez Estrada, Ebeling,  et. al. PLOS Genetics (2018).
+
+*Any appended OligoSTORM barcodes come from the OligoLEGO list: * **`r params$ops_organism`**
+
+*(Below are the first 20 entries... the rest is in the downloaded files.)*
+
+```{r bridges, echo = F, results='asis'} 
+print_bridges <- function(name, data) {
+  if (!is.null(data) && nrow(data) > 0) {
+    name_label <- ifelse(name %in% names(bridge_names), bridge_names[name], name)
+    cat("\n")
+    cat("\n\n#### Bridges for ", name_label, " \n\n")
+    cat("\n")
+        # Check if number of rows is less than or equal to 20
+    # if (nrow(data) <= 30) {
+      return(knitr::kable(data) %>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
+  #   } else {
+  #     return(knitr::kable(head(data, n = 30)) %>%
+  #             scroll_box(width = "100%", height = "500px")%>%
+  # kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  #     )
+  #   }
+  } else {
+    cat(paste0(name, " bridges data is NULL or empty\n"))
+    return(invisible(NULL))  # Return NULL explicitly but invisibly
+  }
+}
+
+# Apply to the data
+for (name in names(params$bridges)) {
+  data <- params$bridges[[name]]
+  result <- print_bridges(name, data)
+  if (!is.null(result)) {
+    print(result)
+  }
+}
+
+
+```
+
+
+#### 4. Secondary oligos (with fluorophore of your choice)
+*Suggested order: 250 nmole - 1μmole, HPLC, TE buffer pH 8.0 @200µM.*
+
+Default secondary oligos that will bind to their complementary bridges. 
+**From the list below order the ones chosen in step 2.**
+
+* sec1 : [5' Fluorophore] - CACACGCTCTTCCGTTCTATGCGACGTCGGTG - [3' Fluorophore]
+* sec2 : [5' Fluorophore] - AGAACGATCCAGCGAGATCAAGTGGAGCTGCG - [3' Fluorophore]
+* sec3 : [5' Fluorophore] - CATTGCCGTATGGGCTAGGATGACCTGGCTCG - [3' Fluorophore]
+* sec4 : [5' Fluorophore] - GCATTCACCCTTGCACGATACCGAGCCACACC - [3' Fluorophore]
+* sec5 : [5' Fluorophore] - ACACCCTTGCACGTCGTGGACCTCCTGCGCTA - [3' Fluorophore]
+* sec6 : [5' Fluorophore] - TGATCGACCACGGCCAAGACGGAGAGCGTGTG - [3' Fluorophore]
+
+* sec405 : [5' AF405] - CATTGCGCCGCTGTAAGACC - [3' AF405]
+
+#### 5. Multiplex Imaging
+
+```{r ofq, echo = F, results='asis'}
+
+library(stringr)
+
+if(!any(str_detect(bridges_colnames, "ofq"), str_detect(bridges_colnames, "lambdaFISH"))){
+  cat("You did not choose any multiplex imaging barcodes.\n\n")
+}
+
+if(any(str_detect(bridges_colnames, "ofq"))){
+  cat("**OligoFISSEQ**\n\nOligoFISSEQ as described in the Nguyen, Chattoraj, Castillo, et. al., Nat Methods (2020) is a multiplexing imaging method. Below are the Just Enough Barcodes you will need to order for multiplex OligoFISSEQ imaging. \n\n* OligoFISSEQ sequencing Primer: /5Phos/ofq_seq_primer (in your downloaded files)\n* JEB Alexa647 8mer: /5Alex647N//ideoxyI//ideoxyI//i3Thio-dI/*GAGCG\n* JEB Alexa488 8mer: /5Alex488N//ideoxyI//ideoxyI//i3Thio-dI/*AGACC\n* JEB TexaRed 8mer: /5TexRd-XN//ideoxyI//ideoxyI//i3Thio-dI/*TGACT\n* JEB Cy3 8mer: /5Cy3/dIdI/3-thio-dI/*GACCA\n\n")
+} 
+
+if(any(str_detect(bridges_colnames, "lambdaFISH"))){
+  cat("\n\n **lambdaFISH**\n\nlambdaFISH bridges need to be ordered as oligo pools (typically from Twist). Each sublibrary needs to be amplified separately. The amplified lambda bridges are then used for imaging.\n\n")
+  
+  cat("\n\n Amplification primer pairs for lambdaFISH:\n\n")
+  # print(knitr::kable(params$amp_primers$lambda_primers_out[[1]]))
+
+
+for (i in seq_along(params$amp_primers$lambda_primers_out)) {
+    # Print the dataframe as a table
+    print(knitr::kable(params$amp_primers$lambda_primers_out[[i]])%>%
+              scroll_box(width = "100%", height = "500px")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  )
+}
+  
+} 
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
