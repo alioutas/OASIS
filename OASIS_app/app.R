@@ -1230,7 +1230,7 @@ ui <- fluidPage(
               div(id = "scratch",
                tags$a(href="https://alioutas.github.io/revcomp_shinylive/", "Reverse Complement online tool (DNA / RNA) \n"),
                br(),
-               tags$a(href="https://wulab.connect.hms.harvard.edu/OligopaintsInsight/", "Find which Barcodes you have previously used."),
+               tags$a(href="https://wulab.connect.hms.harvard.edu/barcodes_used/", "Find which Barcodes you have previously used."),
                h5("Mine Oligopaints from scratch:"),
                tags$a(href="https://github.com/beliveau-lab/OligoMiner", "OligoMiner."),
                br(),
