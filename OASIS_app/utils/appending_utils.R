@@ -439,6 +439,9 @@ create_pairs <- function(data = comb_ops(),
           df_multiplex_bs$bs_street <- .streets[df_multiplex_bs$bs_num, ]$streets
           df_multiplex_bs$bs_toe <- .toes[df_multiplex_bs$bs_num, ]$toes
           
+          print("df_multiplex_bs$bs_num")
+          print(df_multiplex_bs$bs_num)
+          
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_num)]
           
           df_multiplex_bs <- df_multiplex_bs %>%
@@ -449,10 +452,16 @@ create_pairs <- function(data = comb_ops(),
           df_multiplex_bs$bs_FWD_primer_lambdaFISH <- .streets[df_multiplex_bs$bs_FWD_primer_num_lambdaFISH, ]$streets
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_bs$bs_FWD_primer_num_lambdaFISH)]
           
+          print("df_multiplex_bs$bs_FWD_primer_num_lambdaFISH")
+          print(df_multiplex_bs$bs_FWD_primer_num_lambdaFISH)
           
           num_rev_primers <- nchar(df_multiplex_bs$bs_lambdaFISH_key[1])
           bs_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% bs_lambdaFISH_REV_primer_nums)]
+          
+          print("bs_lambdaFISH_REV_primer_nums")
+          print(bs_lambdaFISH_REV_primer_nums)
+          
           
           for (i in seq_len(num_rev_primers)) {
             bs_lambdaFISH_REV_primer_num <- bs_lambdaFISH_REV_primer_nums[i]
@@ -562,8 +571,11 @@ create_pairs <- function(data = comb_ops(),
           df_multiplex_ms$ms_num <- .available_os_barcodes[1:nrow(df_multiplex_ms)]
           df_multiplex_ms$ms_street <- .streets[df_multiplex_ms$ms_num, ]$streets
           df_multiplex_ms$ms_toe <- .toes[df_multiplex_ms$ms_num, ]$toes
-          
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_ms$ms_num)]
+          
+          print("df_multiplex_ms$ms_num")
+          print(df_multiplex_ms$ms_num)
+          
           
           df_multiplex_ms <- df_multiplex_ms %>%
             left_join(.available_multiplex_barcodes, by = c("ms" = "id")) %>%
@@ -573,10 +585,15 @@ create_pairs <- function(data = comb_ops(),
           df_multiplex_ms$ms_FWD_primer_lambdaFISH <- .streets[df_multiplex_ms$ms_FWD_primer_num_lambdaFISH, ]$streets
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% df_multiplex_ms$ms_FWD_primer_num_lambdaFISH)]
           
+          print("df_multiplex_ms$ms_FWD_primer_num_lambdaFISH")
+          print(df_multiplex_ms$ms_FWD_primer_num_lambdaFISH)
           
           num_rev_primers <- nchar(df_multiplex_ms$ms_lambdaFISH_key[1])
           ms_lambdaFISH_REV_primer_nums <- .available_os_barcodes[1:num_rev_primers]
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% ms_lambdaFISH_REV_primer_nums)]
+          
+          print("ms_lambdaFISH_REV_primer_nums")
+          print(ms_lambdaFISH_REV_primer_nums)
           
           for (i in seq_len(num_rev_primers)) {
             ms_lambdaFISH_REV_primer_num <- ms_lambdaFISH_REV_primer_nums[i]
@@ -592,6 +609,11 @@ create_pairs <- function(data = comb_ops(),
           df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe <- .available_os_barcodes[1]
           df_multiplex_ms$ms_REV_primer_lambdaFISHtoe <- .streets[df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe, ]$streets
           .available_os_barcodes <- .available_os_barcodes[-which(.available_os_barcodes %in% unique(df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe))]
+          
+          print("df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe")
+          print(df_multiplex_ms$ms_REV_primer_num_lambdaFISHtoe)
+          
+          
           
           df_multiplex_ms <- df_multiplex_ms %>%
             bind_cols(., as.data.frame(do.call(

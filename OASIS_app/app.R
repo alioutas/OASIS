@@ -933,7 +933,7 @@ ui <- fluidPage(
                                         ),
                                         checkboxInput(
                                           inputId = "bs1_rc",
-                                          label = "Reverse complement BackStreet 1 OligoSTORM barcode sequence. "
+                                          label = "Backstreet 1 barcode on 3' end. "
                                           ,
                                           value = TRUE
                                         )
@@ -960,7 +960,7 @@ ui <- fluidPage(
                                         ),
                                         checkboxInput(
                                           inputId = "bs2_rc",
-                                          label = "Reverse complement BackStreet 1 OligoSTORM barcode sequence. "
+                                          label = "Backstreet 2 barcode on 3' end. "
                                           ,
                                           value = TRUE
                                         )
@@ -993,15 +993,16 @@ ui <- fluidPage(
                          div(id = "advancedAppend",
                              h5("For advanced users ONLY", style="color:white ; background-color:#f16232; font-weight: bold; text-align: center"),
                              h3("OligoSTORM", id = "h3_white"),
-                             h5(strong("OligoSTORM barcodes to avoid:")),
+                             tags$a(href = "https://wulab.connect.hms.harvard.edu/barcodes_used/", "Find previously appended barcodes"),
+                             h5(strong("Continous OligoSTORM barcodes to avoid:")),
                              splitLayout(
                                numericInput("avoid_from", label = "From:", value = 0, step = 1),
                                numericInput("avoid_to", label = "To:", value = 0, step = 1)),
-                               textInput( 
-                                 "avoid_os_seq", 
-                                 "OligoSTORM barcodes to AVOID", 
-                                 placeholder = "Example: 1,2,4,8,12"
-                               ), 
+                             textInput(
+                               "avoid_os_seq", 
+                                 "Discontinous OligoSTORM barcodes to avoid:", 
+                               placeholder = "Example: 1,2,4,8,12"
+                             ),
                              # fileInput(inputId = "avoid_os_seq", "OligoSTORM barcodes to AVOID", multiple = F,
                              #           accept = c(
                              #             "text/csv",
@@ -1228,19 +1229,19 @@ ui <- fluidPage(
             br(),
             shinyjs::hidden(
               div(id = "scratch",
-               tags$a(href="https://alioutas.github.io/revcomp_shinylive/", "Reverse Complement online tool (DNA / RNA) \n"),
+               tags$a(href="https://alioutas.github.io/revcomp_shinylive/", "Reverse Complement online tool (DNA / RNA)"),
                br(),
-               tags$a(href="https://wulab.connect.hms.harvard.edu/barcodes_used/", "Find which Barcodes you have previously used."),
+               tags$a(href="https://wulab.connect.hms.harvard.edu/barcodes_used/", "Find previously appended barcodes"),
                h5("Mine Oligopaints from scratch:"),
-               tags$a(href="https://github.com/beliveau-lab/OligoMiner", "OligoMiner."),
+               tags$a(href="https://github.com/beliveau-lab/OligoMiner", "OligoMiner"),
                br(),
-               tags$a(href="https://paintshop.io/", "PaintSHOP."),
+               tags$a(href="https://paintshop.io/", "PaintSHOP"),
                h5("OligoSTORM sequential imaging is described here:"),
-               tags$a(href="https://doi.org/10.1371/journal.pgen.1007872", "Nir G, Farabella I, Pérez Estrada C, Ebeling CG, et. al., PLOS Genetics (2018)."),
+               tags$a(href="https://doi.org/10.1371/journal.pgen.1007872", "Nir G, Farabella I, Pérez Estrada C, Ebeling CG, et. al., PLOS Genetics (2018)"),
                br(),
-               tags$a(href="https://doi.org/10.1126/science.aau1783", "Bintu B, et. al., Science (2018)."),
+               tags$a(href="https://doi.org/10.1126/science.aau1783", "Bintu B, et. al., Science (2018)"),
                h5("OligoFISSEQ imaging is described here:"),
-               tags$a(href="https://rdcu.be/c5yF9", "Nguyen H, Chattoraj S, Castillo D, et. al., Nature Methods (2020)."),
+               tags$a(href="https://rdcu.be/c5yF9", "Nguyen H, Chattoraj S, Castillo D, et. al., Nature Methods (2020)"),
                br(),
                hr(),
                h5("For ever grateful to Huy Nguyen, Jumana Alhaj Abed and the Wu lab for their feedback on OASIS development."),
