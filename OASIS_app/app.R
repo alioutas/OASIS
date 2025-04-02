@@ -114,8 +114,8 @@ ui <- fluidPage(
   img(src="oasis_logo.png", align = "left", height = "180px", width = "180px", style = "margin-left: 15px; margin-right: 15px; margin-top: 15px; margin-bottom: 15px;"),
   titlePanel("Oligopaints Appending in 3 Simple Interactive Steps"),
   #h1("OASIS"),
-  helpText("This is an application designed to interactively append barcode DNA sequences to Oligopaints.",
-           "\n The barcodes that can be appended are: OligoSTORM and OligoFISSEQ.", #, and lambdaFISH
+  helpText("This is an application designed to interactively append OligoSTORM and OligoFISSEQ DNA barcodes to Oligopaints.",
+           "\n ", #, and lambdaFISH
            h5("Contact: Antonios Lioutas","(antonios_lioutas <at> hms.harvard.edu)"), 
            div(
              style = "display: inline-block; margin-right: 20px;", # Styling for inline display and some space between links
@@ -1876,7 +1876,7 @@ server <- function(input, output, session) {
       filter_density <- input$filter_density
     }
 
-    # tryCatch({
+
     req(comb_ops())
       comb_ops <- comb_ops()
 
@@ -1950,19 +1950,8 @@ server <- function(input, output, session) {
           }
         }
       }
-      # return(comb_ops)  # Default return value
-    # }, error = function(e) {
-    #   showModal(modalDialog(
-    #     title = "Unexpected Error",
-    #     paste("An error occurred: ", e$message),
-    #     easyClose = TRUE,
-    #     footer = NULL
-    #   ))
-    #   return(comb_ops)  # Return comb_ops in case of an unexpected error
-    # })
       
       
-    # if(!is.null(input$filter_density)) {
       if(filter_density >= 1) {
         #define the column name to homogenize the density of OPs
         street_to_select <- switch(input$selected_street,
@@ -2014,9 +2003,6 @@ server <- function(input, output, session) {
         return(comb_ops)
       }
   
-
-    # }
-      
   }) %>% 
     bindEvent(input$filter_ops)
   
@@ -2036,14 +2022,6 @@ server <- function(input, output, session) {
   ########## UNIVERSAL MAINSTREET   ########## 
   
   ###### Use genomic coordinates ###### 
-  # makes uploading files for MS and BS visible when auto universals is not clicked
-  # observe({
-  #   toggle(id = "UNI_ms", condition = !input$auto_uni)
-  # })
-  # 
-  # observe({
-  #   toggle(id = "UNI_bs", condition = !input$auto_uni)
-  # })
   
   # Intersects *New* Universal Mainstreets to filtered Oligopaints
   universals_ms <- print("")
