@@ -112,14 +112,14 @@ appened_opsServer <- function(id,
             street_target_seq = street,
             bridge_to_order = {
                 if (exists("bs_rc") && bs_rc) {
-                  sec = rc(secondary_seq)
+                  sec = secondary_seq
                   str = rc(toe)
                   actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
                   paste0(actsec, sec, str)
                 } else {
                   str = rc(toe)
                   actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
-                  sec = rc(secondary_seq)
+                  sec = secondary_seq
                   paste0(str, actsec, sec)
                 }
               },
@@ -159,14 +159,14 @@ appened_opsServer <- function(id,
           mutate(street_target_seq = toe,
                  bridge_to_order = {
                    if (exists("bs_rc") && bs_rc) {
-                     sec = rc(secondary_seq)
+                     sec = secondary_seq
                      str = rc(street)
                      actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
                      paste0(actsec, sec, str)
                    } else {
                      str = rc(street)
                      actsec = if (exists("append_actsec") && append_actsec) rc(input_actsec_seq) else ""
-                     sec = rc(secondary_seq)
+                     sec = secondary_seq
                      paste0(str, actsec, sec)
                    }
                  },
