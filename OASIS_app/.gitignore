@@ -1,5 +1,9 @@
 .Rproj.user
+.Rproj
 .Rhistory
 .RData
 .Ruserdata
 report.txt
+# macOS metadata
+.DS_Store
+._*
