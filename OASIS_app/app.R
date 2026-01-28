@@ -131,7 +131,7 @@ ui <- fluidPage(
   br(),
   h6(icon("info-circle"), "To start from scratch, refresh the webpage.", icon("info-circle"), "After any modification press the corresponding button to apply the changes."),
   add_busy_bar(color = "#F1C232", height ="12px"),
-  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.10</span>')),  #, tags$b("OASIS")
+  navbarPage(HTML(paste0('<span style="font-size: small;">v0.0.11</span>')),  #, tags$b("OASIS")
              
              
              ########################################################################################################
@@ -865,7 +865,7 @@ ui <- fluidPage(
                                         checkboxInput(
                                           inputId = "uni_BS_rc",
                                           label = tippy(
-                                            "Reverse complement BackStreet universal barcode sequence. ",
+                                            "Backstreet universal barcode on 3' end. ",
                                             "<strong>When selected your Back Street sequence will be the reverse complement of the barcode. This will be taken into consideration when bridges are designed.</strong>"
                                           ),
                                           value = TRUE
